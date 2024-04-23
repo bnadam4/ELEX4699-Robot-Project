@@ -1,0 +1,13 @@
+Right Motor Forward = GPIO17
+Right Motor Reverse = GPIO27
+Right Motor Enable = GPIO22
+Left Motor Forward = GPIO6
+Left Motor Reverse = GPIO5
+Left Motor Enable = GPIO26
+Cannon = GPIO4
+Spare = GPIO23 (priority 1)
+Spare = GPIO24 (priority 2)
+Spare = GPIO10
+Spare = GPIO25 (priority 3)
+Spare = GPIO9
+Spare = GPIO8
