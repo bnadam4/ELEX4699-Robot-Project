@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1713901063 source:/home/braedon/Desktop/Lab7B/CCar/main.cpp
+1713909032 source:/home/braedon/Desktop/Lab7B/CCar/main.cpp
 	<iostream>
 	"pigpio.h"
 	<opencv2/opencv.hpp>
@@ -614,14 +614,14 @@
 1608580898 /usr/include/opencv4/opencv2/video/background_segm.hpp
 	"opencv2/core.hpp"
 
-1713894302 /home/braedon/Desktop/Lab7B/CCar/CMotors.h
+1713908014 /home/braedon/Desktop/Lab7B/CCar/CMotors.h
 	"pigpio.h"
 	<opencv2/opencv.hpp>
 	<string>
 	<string>
 	<sstream>
 
-1713896425 source:/home/braedon/Desktop/Lab7B/CCar/CMotors.cpp
+1713908343 source:/home/braedon/Desktop/Lab7B/CCar/CMotors.cpp
 	"pigpio.h"
 	<opencv2/opencv.hpp>
 	<string>

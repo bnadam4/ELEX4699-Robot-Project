@@ -23,4 +23,8 @@ public:
 
 	void left(float time, int duty);
 	void right(float time, int duty);
+
+	void turn_cannon(int angle);
+
+	void fire();
 };
