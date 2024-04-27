@@ -1,0 +1,29 @@
+\hypertarget{_control_8h_source}{}\doxysection{Control.\+h}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}stdafx.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}Serial.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{enum}\ \{\ DIGITAL\ =\ 0,\ ANALOG,\ SERVO\ \};}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_c_control}{CControl}}\ }
+\DoxyCodeLine{00021\ \{}
+\DoxyCodeLine{00022\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00023\ \ \ \ \ \mbox{\hyperlink{class_serial}{Serial}}\ \mbox{\hyperlink{class_c_control_aef87fbcfdcd323b1fdcf41be993e006c}{\_com}};\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{class_c_control_a6498500ff403327b5770a3acebed1d93}{CControl}}();}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_c_control_a3d1384d0e1ee2a4a478a798b46457468}{init\_com}}(\textcolor{keywordtype}{int}\ comport);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_c_control_a0bad8e51e54cb6f1e2a7b51d3a3940d3}{get\_data}}(\textcolor{keywordtype}{int}\ type,\ \textcolor{keywordtype}{int}\ channel,\ \textcolor{keywordtype}{int}\&\ result);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_c_control_a13f557815616ef66a8f5dd4b725d8c32}{set\_data}}(\textcolor{keywordtype}{int}\ type,\ \textcolor{keywordtype}{int}\ channel,\ \textcolor{keywordtype}{int}\ val);}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_c_control_ad81764ddc35d727dd2602b07e69c2299}{get\_analog}}(\textcolor{keywordtype}{int}\ channel);}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_c_control_a8bfda8bb7e6385d6850c1c0a6bf6bbfd}{get\_button}}(\textcolor{keywordtype}{int}\ channel,\ \textcolor{keywordtype}{int}\&\ result,\ \textcolor{keywordtype}{int}\ prev);}
+\DoxyCodeLine{00071\ \};}
+
+\end{DoxyCode}

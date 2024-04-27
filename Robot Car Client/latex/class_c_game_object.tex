@@ -1,0 +1,260 @@
+\hypertarget{class_c_game_object}{}\doxysection{CGame\+Object Class Reference}
+\label{class_c_game_object}\index{CGameObject@{CGameObject}}
+
+
+Defines common attributes of the objects in the Asteroids game.  
+
+
+
+
+{\ttfamily \#include $<$CGame\+Object.\+h$>$}
+
+Inheritance diagram for CGame\+Object\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_c_game_object}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_c_game_object_a5fecb17a62f57564f27a5e1120721e12}{move}} ()
+\begin{DoxyCompactList}\small\item\em Moves the game object. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_c_game_object_a095ec5e8e92a7442f444a1d3b7e200da}{collide}} (\mbox{\hyperlink{class_c_game_object}{CGame\+Object}} \&obj)
+\begin{DoxyCompactList}\small\item\em Finds if two objects have collided. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_c_game_object_a08d995ced2104224a85466636830c75b}{collide\+\_\+wall}} (cv\+::\+Size board)
+\begin{DoxyCompactList}\small\item\em Checks if the game object has collided with a wall. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_ab66892d3d3db14c4b7e427f341c949dd}{hit}} ()
+\begin{DoxyCompactList}\small\item\em Action to take if an object is hit. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_c_game_object_a9c794264bb1c37231f137b0df3a8ccbc}{get\+\_\+lives}} ()
+\begin{DoxyCompactList}\small\item\em Initializes the attributes of the missile. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_a1fbab5676bc0491dd10266bce54ad577}{set\+\_\+lives}} (int lives)
+\begin{DoxyCompactList}\small\item\em Sets the objects lives. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_a00d81865208e461b027e02c681f1b5c5}{set\+\_\+pos}} (cv\+::\+Point2f pos)
+\begin{DoxyCompactList}\small\item\em Sets the object position. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_af236745194b32ebd4e917a89edc776b6}{set\+\_\+color}} (cv\+::\+Scalar \+\_\+color)
+\begin{DoxyCompactList}\small\item\em Sets the object\textquotesingle{}s color. \end{DoxyCompactList}\item 
+cv\+::\+Point2f \mbox{\hyperlink{class_c_game_object_adba771699db5820fcbc948ec80b7003b}{get\+\_\+pos}} ()
+\begin{DoxyCompactList}\small\item\em Gets the position of the object. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_a52acc619db9e652d6e0d0b6fd3205a0a}{draw}} (cv\+::\+Mat \&im)
+\begin{DoxyCompactList}\small\item\em Draws game object to the board. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_game_object_a7b4e09f1daa6a49233a0f5c02c65de2c}\label{class_c_game_object_a7b4e09f1daa6a49233a0f5c02c65de2c}} 
+cv\+::\+Point2f {\bfseries \+\_\+position}
+\begin{DoxyCompactList}\small\item\em Object position in game. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_afc80c955ac58f71f2fce1b341bd88e7f}\label{class_c_game_object_afc80c955ac58f71f2fce1b341bd88e7f}} 
+cv\+::\+Point2f {\bfseries \+\_\+velocity}
+\begin{DoxyCompactList}\small\item\em Object velocity in game. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_a75ee23a373ce4a33863de12f42c8ab55}\label{class_c_game_object_a75ee23a373ce4a33863de12f42c8ab55}} 
+int {\bfseries \+\_\+radius}
+\begin{DoxyCompactList}\small\item\em Object\textquotesingle{}s radius. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_acb7176fe06c83819114f7e8a8490c755}\label{class_c_game_object_acb7176fe06c83819114f7e8a8490c755}} 
+int {\bfseries \+\_\+lives}
+\begin{DoxyCompactList}\small\item\em Number of lives the object has. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_ad83c2538070058536269877eb2847826}\label{class_c_game_object_ad83c2538070058536269877eb2847826}} 
+cv\+::\+Scalar {\bfseries color}
+\begin{DoxyCompactList}\small\item\em Color of the object. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_a08b877b799103e7d0083e4157fb2473f}\label{class_c_game_object_a08b877b799103e7d0083e4157fb2473f}} 
+double {\bfseries last\+\_\+move\+\_\+time}
+\begin{DoxyCompactList}\small\item\em Last time the move function was called. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Defines common attributes of the objects in the Asteroids game. 
+
+This class will act as a base class for \mbox{\hyperlink{class_c_ship}{CShip}}, \mbox{\hyperlink{class_c_asteroid}{CAsteroid}}, and CMissle classes. It contains the parameters such as the position, velocity, and lives of the object. It also contains methods to move the object, detect collisions, and draw it.
+
+\begin{DoxyAuthor}{Author}
+Bryce Adam 
+\end{DoxyAuthor}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_c_game_object_a095ec5e8e92a7442f444a1d3b7e200da}\label{class_c_game_object_a095ec5e8e92a7442f444a1d3b7e200da}} 
+\index{CGameObject@{CGameObject}!collide@{collide}}
+\index{collide@{collide}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{collide()}{collide()}}
+{\footnotesize\ttfamily bool CGame\+Object\+::collide (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_c_game_object}{CGame\+Object}} \&}]{obj }\end{DoxyParamCaption})}
+
+
+
+Finds if two objects have collided. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em obj} & game object to check if collided with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if collision and false if no collision 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_a08d995ced2104224a85466636830c75b}\label{class_c_game_object_a08d995ced2104224a85466636830c75b}} 
+\index{CGameObject@{CGameObject}!collide\_wall@{collide\_wall}}
+\index{collide\_wall@{collide\_wall}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{collide\_wall()}{collide\_wall()}}
+{\footnotesize\ttfamily bool CGame\+Object\+::collide\+\_\+wall (\begin{DoxyParamCaption}\item[{cv\+::\+Size}]{board }\end{DoxyParamCaption})}
+
+
+
+Checks if the game object has collided with a wall. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em board} & dimensions of the board\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_a52acc619db9e652d6e0d0b6fd3205a0a}\label{class_c_game_object_a52acc619db9e652d6e0d0b6fd3205a0a}} 
+\index{CGameObject@{CGameObject}!draw@{draw}}
+\index{draw@{draw}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{draw()}{draw()}}
+{\footnotesize\ttfamily void CGame\+Object\+::draw (\begin{DoxyParamCaption}\item[{cv\+::\+Mat \&}]{im }\end{DoxyParamCaption})}
+
+
+
+Draws game object to the board. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em im} & Window to draw on\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_a9c794264bb1c37231f137b0df3a8ccbc}\label{class_c_game_object_a9c794264bb1c37231f137b0df3a8ccbc}} 
+\index{CGameObject@{CGameObject}!get\_lives@{get\_lives}}
+\index{get\_lives@{get\_lives}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{get\_lives()}{get\_lives()}}
+{\footnotesize\ttfamily int CGame\+Object\+::get\+\_\+lives (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Initializes the attributes of the missile. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+number of lives 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_adba771699db5820fcbc948ec80b7003b}\label{class_c_game_object_adba771699db5820fcbc948ec80b7003b}} 
+\index{CGameObject@{CGameObject}!get\_pos@{get\_pos}}
+\index{get\_pos@{get\_pos}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{get\_pos()}{get\_pos()}}
+{\footnotesize\ttfamily cv\+::\+Point2f CGame\+Object\+::get\+\_\+pos (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Gets the position of the object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+\_\+position 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_ab66892d3d3db14c4b7e427f341c949dd}\label{class_c_game_object_ab66892d3d3db14c4b7e427f341c949dd}} 
+\index{CGameObject@{CGameObject}!hit@{hit}}
+\index{hit@{hit}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{hit()}{hit()}}
+{\footnotesize\ttfamily void CGame\+Object\+::hit (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Action to take if an object is hit. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_a5fecb17a62f57564f27a5e1120721e12}\label{class_c_game_object_a5fecb17a62f57564f27a5e1120721e12}} 
+\index{CGameObject@{CGameObject}!move@{move}}
+\index{move@{move}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{move()}{move()}}
+{\footnotesize\ttfamily void CGame\+Object\+::move (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Moves the game object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_af236745194b32ebd4e917a89edc776b6}\label{class_c_game_object_af236745194b32ebd4e917a89edc776b6}} 
+\index{CGameObject@{CGameObject}!set\_color@{set\_color}}
+\index{set\_color@{set\_color}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{set\_color()}{set\_color()}}
+{\footnotesize\ttfamily void CGame\+Object\+::set\+\_\+color (\begin{DoxyParamCaption}\item[{cv\+::\+Scalar}]{\+\_\+color }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the object\textquotesingle{}s color. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+color} & color to set the object to\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_a1fbab5676bc0491dd10266bce54ad577}\label{class_c_game_object_a1fbab5676bc0491dd10266bce54ad577}} 
+\index{CGameObject@{CGameObject}!set\_lives@{set\_lives}}
+\index{set\_lives@{set\_lives}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{set\_lives()}{set\_lives()}}
+{\footnotesize\ttfamily void CGame\+Object\+::set\+\_\+lives (\begin{DoxyParamCaption}\item[{int}]{lives }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the objects lives. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em lives} & number of lives you want to set it to\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_game_object_a00d81865208e461b027e02c681f1b5c5}\label{class_c_game_object_a00d81865208e461b027e02c681f1b5c5}} 
+\index{CGameObject@{CGameObject}!set\_pos@{set\_pos}}
+\index{set\_pos@{set\_pos}!CGameObject@{CGameObject}}
+\doxysubsubsection{\texorpdfstring{set\_pos()}{set\_pos()}}
+{\footnotesize\ttfamily void CGame\+Object\+::set\+\_\+pos (\begin{DoxyParamCaption}\item[{cv\+::\+Point2f}]{pos }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets the object position. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pos} & position to set it to\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+CGame\+Object.\+h\item 
+CGame\+Object.\+cpp\end{DoxyCompactItemize}

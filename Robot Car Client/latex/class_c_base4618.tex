@@ -1,0 +1,139 @@
+\hypertarget{class_c_base4618}{}\doxysection{CBase4618 Class Reference}
+\label{class_c_base4618}\index{CBase4618@{CBase4618}}
+
+
+Contains common code used in Lab 4 and onward.  
+
+
+
+
+{\ttfamily \#include $<$CBase4618.\+h$>$}
+
+Inheritance diagram for CBase4618\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_c_base4618}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_c_base4618_abe2aad021452c08dd4a5726b44c5a0b7}{CBase4618}} ()
+\begin{DoxyCompactList}\small\item\em Initializes the GUI system. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_c_base4618_a1e2f3c16eb99b5bfdd5d5254aee39ee6}{update}} ()=0
+\begin{DoxyCompactList}\small\item\em Performs calculations (implemented in child classes) \end{DoxyCompactList}\item 
+virtual char \mbox{\hyperlink{class_c_base4618_a822940c0d3e65ef02dcf3250237f3f6d}{draw}} ()=0
+\begin{DoxyCompactList}\small\item\em Draws on the canvas (implemented in child classes) \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_base4618_a535e816d735d10d6048dd39cd893d393}{run}} ()
+\begin{DoxyCompactList}\small\item\em Loops over update and draw. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_base4618_a9ad9fcc89c9aa4e0301801ecb65107c7}\label{class_c_base4618_a9ad9fcc89c9aa4e0301801ecb65107c7}} 
+\mbox{\hyperlink{class_c_control}{CControl}} {\bfseries controller}
+\begin{DoxyCompactList}\small\item\em Object for communicating with the microcontroller. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_base4618_a1b925f757247b33ca2072f777f24582d}\label{class_c_base4618_a1b925f757247b33ca2072f777f24582d}} 
+cv\+::\+Mat {\bfseries \+\_\+canvas}
+\begin{DoxyCompactList}\small\item\em Canvas to draw on. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contains common code used in Lab 4 and onward. 
+
+This class contains the objects needed to make a canvas to draw the etch-\/a-\/sketch on.
+
+\begin{DoxyAuthor}{Author}
+Bryce Adam 
+\end{DoxyAuthor}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_c_base4618_abe2aad021452c08dd4a5726b44c5a0b7}\label{class_c_base4618_abe2aad021452c08dd4a5726b44c5a0b7}} 
+\index{CBase4618@{CBase4618}!CBase4618@{CBase4618}}
+\index{CBase4618@{CBase4618}!CBase4618@{CBase4618}}
+\doxysubsubsection{\texorpdfstring{CBase4618()}{CBase4618()}}
+{\footnotesize\ttfamily CBase4618\+::\+CBase4618 (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Initializes the GUI system. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_c_base4618_a822940c0d3e65ef02dcf3250237f3f6d}\label{class_c_base4618_a822940c0d3e65ef02dcf3250237f3f6d}} 
+\index{CBase4618@{CBase4618}!draw@{draw}}
+\index{draw@{draw}!CBase4618@{CBase4618}}
+\doxysubsubsection{\texorpdfstring{draw()}{draw()}}
+{\footnotesize\ttfamily virtual char CBase4618\+::draw (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Draws on the canvas (implemented in child classes) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{class_c_asteroid_game_afe3e7c75367b35120344566d619c445f}{CAsteroid\+Game}}, \mbox{\hyperlink{class_c_pong_ad8e374702cb12803bf00bfbed8c5f1f4}{CPong}}, and \mbox{\hyperlink{class_c_sketch_af01c530bf3cd2f18d79003d48ee177d5}{CSketch}}.
+
+\mbox{\Hypertarget{class_c_base4618_a535e816d735d10d6048dd39cd893d393}\label{class_c_base4618_a535e816d735d10d6048dd39cd893d393}} 
+\index{CBase4618@{CBase4618}!run@{run}}
+\index{run@{run}!CBase4618@{CBase4618}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily void CBase4618\+::run (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Loops over update and draw. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_base4618_a1e2f3c16eb99b5bfdd5d5254aee39ee6}\label{class_c_base4618_a1e2f3c16eb99b5bfdd5d5254aee39ee6}} 
+\index{CBase4618@{CBase4618}!update@{update}}
+\index{update@{update}!CBase4618@{CBase4618}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily virtual void CBase4618\+::update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Performs calculations (implemented in child classes) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{class_c_asteroid_game_a075909049dd964d88182c8b413d4fa90}{CAsteroid\+Game}}, \mbox{\hyperlink{class_c_pong_abdf0d44329b40d14863ba134b031435a}{CPong}}, and \mbox{\hyperlink{class_c_sketch_a3b7e2fa57fd26e4b812494268a5bbfbb}{CSketch}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+CBase4618.\+h\item 
+CBase4618.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,175 @@
+\hypertarget{class_c_asteroid_game}{}\doxysection{CAsteroid\+Game Class Reference}
+\label{class_c_asteroid_game}\index{CAsteroidGame@{CAsteroidGame}}
+
+
+Implements the Asteroids Video Game.  
+
+
+
+
+{\ttfamily \#include $<$CAsteroid\+Game.\+h$>$}
+
+Inheritance diagram for CAsteroid\+Game\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_c_asteroid_game}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_c_asteroid_game_ae2ae4f8b2868e534f174c86abcb57824}{CAsteroid\+Game}} ()
+\begin{DoxyCompactList}\small\item\em Initialize com port and game variables. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_asteroid_game_a075909049dd964d88182c8b413d4fa90}{update}} ()
+\begin{DoxyCompactList}\small\item\em Performs game calculations. \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{class_c_asteroid_game_afe3e7c75367b35120344566d619c445f}{draw}} ()
+\begin{DoxyCompactList}\small\item\em Draws the game state. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_asteroid_game_aaccc0701d4c6cc52f8079d09a1bc95ae}{run}} ()
+\begin{DoxyCompactList}\small\item\em Loops over update and draw. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_c_base4618}{CBase4618}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_c_base4618_abe2aad021452c08dd4a5726b44c5a0b7}{CBase4618}} ()
+\begin{DoxyCompactList}\small\item\em Initializes the GUI system. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{class_c_base4618_a1e2f3c16eb99b5bfdd5d5254aee39ee6}{update}} ()=0
+\begin{DoxyCompactList}\small\item\em Performs calculations (implemented in child classes) \end{DoxyCompactList}\item 
+virtual char \mbox{\hyperlink{class_c_base4618_a822940c0d3e65ef02dcf3250237f3f6d}{draw}} ()=0
+\begin{DoxyCompactList}\small\item\em Draws on the canvas (implemented in child classes) \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_base4618_a535e816d735d10d6048dd39cd893d393}{run}} ()
+\begin{DoxyCompactList}\small\item\em Loops over update and draw. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_asteroid_game_acd600b2ef9b93b90dbba925db0af00e3}\label{class_c_asteroid_game_acd600b2ef9b93b90dbba925db0af00e3}} 
+std\+::vector$<$ \mbox{\hyperlink{class_c_asteroid}{CAsteroid}} $>$ {\bfseries Asteroid\+\_\+list}
+\begin{DoxyCompactList}\small\item\em Vector of active asteroids. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_asteroid_game_a566b2f58627294068d9026d5c1978ac4}\label{class_c_asteroid_game_a566b2f58627294068d9026d5c1978ac4}} 
+std\+::vector$<$ \mbox{\hyperlink{class_c_missile}{CMissile}} $>$ {\bfseries Missile\+\_\+list}
+\begin{DoxyCompactList}\small\item\em Vector of active missiles. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_asteroid_game_a821e61bb8e38d46d8087e6df652415fb}\label{class_c_asteroid_game_a821e61bb8e38d46d8087e6df652415fb}} 
+\mbox{\hyperlink{class_c_ship}{CShip}} {\bfseries Ship}
+\begin{DoxyCompactList}\small\item\em Player ship object. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_asteroid_game_a3b205d6b10e0c44429f8cee05e4f18c8}\label{class_c_asteroid_game_a3b205d6b10e0c44429f8cee05e4f18c8}} 
+int {\bfseries score}
+\begin{DoxyCompactList}\small\item\em Player\textquotesingle{}s current score. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_asteroid_game_a1a373691cfa32a8593e70af5a7fe8d90}\label{class_c_asteroid_game_a1a373691cfa32a8593e70af5a7fe8d90}} 
+cv\+::\+Size {\bfseries board}
+\begin{DoxyCompactList}\small\item\em Dimensions of the game board. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_asteroid_game_a503a35bdfcca4230f9d38b1fdb7d077e}\label{class_c_asteroid_game_a503a35bdfcca4230f9d38b1fdb7d077e}} 
+int {\bfseries first\+\_\+push}
+\begin{DoxyCompactList}\small\item\em Variable for hold missile fire. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_asteroid_game_aac09c6de4891ce7221f81d6edc576016}\label{class_c_asteroid_game_aac09c6de4891ce7221f81d6edc576016}} 
+double {\bfseries start\+\_\+tic}
+\begin{DoxyCompactList}\small\item\em Variable for missile hold fire rate. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+\doxysubsubsection*{Protected Attributes inherited from \mbox{\hyperlink{class_c_base4618}{CBase4618}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_base4618_a9ad9fcc89c9aa4e0301801ecb65107c7}\label{class_c_base4618_a9ad9fcc89c9aa4e0301801ecb65107c7}} 
+\mbox{\hyperlink{class_c_control}{CControl}} {\bfseries controller}
+\begin{DoxyCompactList}\small\item\em Object for communicating with the microcontroller. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_base4618_a1b925f757247b33ca2072f777f24582d}\label{class_c_base4618_a1b925f757247b33ca2072f777f24582d}} 
+cv\+::\+Mat {\bfseries \+\_\+canvas}
+\begin{DoxyCompactList}\small\item\em Canvas to draw on. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements the Asteroids Video Game. 
+
+Implements the update, draw and (run?) methods from \mbox{\hyperlink{class_c_base4618}{CBase4618}} to create Asteroids. It keeps track of all the missiles and asteroids in play and detects collisions between them. It then computes their lives and whether they should be drawn.
+
+\begin{DoxyAuthor}{Author}
+Bryce Adam 
+\end{DoxyAuthor}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_c_asteroid_game_ae2ae4f8b2868e534f174c86abcb57824}\label{class_c_asteroid_game_ae2ae4f8b2868e534f174c86abcb57824}} 
+\index{CAsteroidGame@{CAsteroidGame}!CAsteroidGame@{CAsteroidGame}}
+\index{CAsteroidGame@{CAsteroidGame}!CAsteroidGame@{CAsteroidGame}}
+\doxysubsubsection{\texorpdfstring{CAsteroidGame()}{CAsteroidGame()}}
+{\footnotesize\ttfamily CAsteroid\+Game\+::\+CAsteroid\+Game (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Initialize com port and game variables. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_c_asteroid_game_afe3e7c75367b35120344566d619c445f}\label{class_c_asteroid_game_afe3e7c75367b35120344566d619c445f}} 
+\index{CAsteroidGame@{CAsteroidGame}!draw@{draw}}
+\index{draw@{draw}!CAsteroidGame@{CAsteroidGame}}
+\doxysubsubsection{\texorpdfstring{draw()}{draw()}}
+{\footnotesize\ttfamily char CAsteroid\+Game\+::draw (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Draws the game state. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{class_c_base4618_a822940c0d3e65ef02dcf3250237f3f6d}{CBase4618}}.
+
+\mbox{\Hypertarget{class_c_asteroid_game_aaccc0701d4c6cc52f8079d09a1bc95ae}\label{class_c_asteroid_game_aaccc0701d4c6cc52f8079d09a1bc95ae}} 
+\index{CAsteroidGame@{CAsteroidGame}!run@{run}}
+\index{run@{run}!CAsteroidGame@{CAsteroidGame}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily void CAsteroid\+Game\+::run (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Loops over update and draw. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_c_asteroid_game_a075909049dd964d88182c8b413d4fa90}\label{class_c_asteroid_game_a075909049dd964d88182c8b413d4fa90}} 
+\index{CAsteroidGame@{CAsteroidGame}!update@{update}}
+\index{update@{update}!CAsteroidGame@{CAsteroidGame}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void CAsteroid\+Game\+::update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Performs game calculations. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{class_c_base4618_a1e2f3c16eb99b5bfdd5d5254aee39ee6}{CBase4618}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+CAsteroid\+Game.\+h\item 
+CAsteroid\+Game.\+cpp\end{DoxyCompactItemize}

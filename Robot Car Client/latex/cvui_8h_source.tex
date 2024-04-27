@@ -1,0 +1,1637 @@
+\hypertarget{cvui_8h_source}{}\doxysection{cvui.\+h}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ A\ (very)\ simple\ UI\ lib\ built\ on\ top\ of\ OpenCV\ drawing\ primitives.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ Version:\ 2.7.0}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ Usage:}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ One\ (and\ only\ one)\ of\ your\ C++\ files\ must\ define\ CVUI\_IMPLEMENTATION}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ before\ the\ inclusion\ of\ cvui.h\ to\ ensure\ its\ implementaiton\ is\ compiled.}}
+\DoxyCodeLine{00011\ \textcolor{comment}{}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ E.g:}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ \#define\ CVUI\_IMPLEMENTATION}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \#include\ "{}cvui.h"{}}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ \ int\ main()\ \{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ \ \}}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ All\ other\ files\ can\ include\ cvui.h\ without\ defining\ CVUI\_IMPLEMENTATION.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ }}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ Use\ of\ cvui\ revolves\ around\ calling\ cvui::init()\ to\ initialize\ the\ lib,\ }}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ rendering\ cvui\ components\ to\ a\ cv::Mat\ (that\ you\ handle\ yourself)\ and}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ finally\ showing\ that\ cv::Mat\ on\ the\ screen\ using\ cvui::imshow(),\ which}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ is\ cvui's\ version\ of\ cv::imshow().\ Alternatively\ you\ can\ use\ cv::imshow()}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ to\ show\ things,\ but\ in\ such\ case\ you\ must\ call\ cvui::update()\ yourself}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ before\ calling\ cv::imshow().}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ }}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ E.g.:}}
+\DoxyCodeLine{00030\ \textcolor{comment}{}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ \ \ \#include\ <opencv2/opencv.hpp>}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ \ \ \#define\ CVUI\_IMPLEMENTATION}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ \ \ \#include\ "{}cvui.h"{}}}
+\DoxyCodeLine{00034\ \textcolor{comment}{}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ \ \ \#define\ WINDOW1\_NAME\ "{}Window\ 1"{}}}
+\DoxyCodeLine{00036\ \textcolor{comment}{}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ \ \ int\ main()\ \{}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ \ \ \ \ cvui::init(WINDOW1\_NAME);}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ \ \ \ \ cv::Mat\ frame\ =\ cv::Mat(cv::Size(400,\ 200),\ CV\_8UC3);}}
+\DoxyCodeLine{00040\ \textcolor{comment}{}}
+\DoxyCodeLine{00041\ \textcolor{comment}{\ \ \ \ \ while(true)\ \{}}
+\DoxyCodeLine{00042\ \textcolor{comment}{\ \ \ \ \ \ \ frame\ =\ cv::Scalar(49,\ 52,\ 49);}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ \ \ \ \ \ \ cvui::text(frame,\ x,\ y,\ "{}Hello\ world!"{});}}
+\DoxyCodeLine{00044\ \textcolor{comment}{}}
+\DoxyCodeLine{00045\ \textcolor{comment}{\ \ \ \ \ \ \ cvui::imshow(WINDOW1\_NAME,\ frame);}}
+\DoxyCodeLine{00046\ \textcolor{comment}{}}
+\DoxyCodeLine{00047\ \textcolor{comment}{\ \ \ \ \ \ \ if\ (cv::waitKey(20)\ ==\ 27)\ \{}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ break;}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00050\ \textcolor{comment}{\ \ \ \ \}}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ \ \ \ return\ 0;}}
+\DoxyCodeLine{00052\ \textcolor{comment}{\ \ \}}}
+\DoxyCodeLine{00053\ \textcolor{comment}{}}
+\DoxyCodeLine{00054\ \textcolor{comment}{\ Read\ the\ full\ documentation\ at\ https://dovyski.github.io/cvui/}}
+\DoxyCodeLine{00055\ \textcolor{comment}{\ }}
+\DoxyCodeLine{00056\ \textcolor{comment}{\ Copyright\ (c)\ 2016\ Fernando\ Bevilacqua\ <dovyski@gmail.com>}}
+\DoxyCodeLine{00057\ \textcolor{comment}{\ Licensed\ under\ the\ MIT\ license.}}
+\DoxyCodeLine{00058\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#ifndef\ \_CVUI\_H\_}}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#define\ \_CVUI\_H\_}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#include\ <stdarg.h>}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#include\ <opencv2/imgproc/imgproc.hpp>}}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\#include\ <opencv2/highgui/highgui.hpp>}}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#include\ <opencv2/core/core.hpp>}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \textcolor{keyword}{namespace\ }cvui}
+\DoxyCodeLine{00073\ \{}
+\DoxyCodeLine{00090\ \textcolor{keywordtype}{void}\ init(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theDelayWaitKey\ =\ -\/1,\ \textcolor{keywordtype}{bool}\ theCreateNamedWindow\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00108\ \textcolor{keywordtype}{void}\ init(\textcolor{keyword}{const}\ cv::String\ theWindowNames[],\ \textcolor{keywordtype}{size\_t}\ theHowManyWindows,\ \textcolor{keywordtype}{int}\ theDelayWaitKey\ =\ -\/1,\ \textcolor{keywordtype}{bool}\ theCreateNamedWindows\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00124\ \textcolor{keywordtype}{void}\ watch(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{bool}\ theCreateNamedWindow\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00185\ \textcolor{keywordtype}{void}\ context(\textcolor{keyword}{const}\ cv::String\&\ theWindowName);}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00204\ \textcolor{keywordtype}{void}\ imshow(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ cv::InputArray\ theFrame);}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00213\ \textcolor{keywordtype}{int}\ lastKeyPressed();}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00221\ cv::Point\ mouse(\textcolor{keyword}{const}\ cv::String\&\ theWindowName\ =\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00250\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keywordtype}{int}\ theQuery);}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00264\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theQuery);}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00277\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keywordtype}{int}\ theButton,\ \textcolor{keywordtype}{int}\ theQuery);}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00288\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theButton,\ \textcolor{keywordtype}{int}\ theQuery);}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00300\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel);}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00314\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel);}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00333\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theIdle,\ cv::Mat\&\ theOver,\ cv::Mat\&\ theDown);}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00346\ \textcolor{keywordtype}{void}\ image(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theImage);}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00360\ \textcolor{keywordtype}{bool}\ checkbox(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ *theState,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor\ =\ 0xCECECE);}
+\DoxyCodeLine{00361\ }
+\DoxyCodeLine{00374\ \textcolor{keywordtype}{void}\ text(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theText,\ \textcolor{keywordtype}{double}\ theFontScale\ =\ 0.4,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor\ =\ 0xCECECE);}
+\DoxyCodeLine{00375\ }
+\DoxyCodeLine{00393\ \textcolor{keywordtype}{void}\ printf(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...);}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00412\ \textcolor{keywordtype}{void}\ printf(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...);}
+\DoxyCodeLine{00413\ }
+\DoxyCodeLine{00426\ \textcolor{keywordtype}{int}\ counter(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ *theValue,\ \textcolor{keywordtype}{int}\ theStep\ =\ 1,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat\ =\ \textcolor{stringliteral}{"{}\%d"{}});}
+\DoxyCodeLine{00427\ }
+\DoxyCodeLine{00440\ \textcolor{keywordtype}{double}\ counter(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keywordtype}{double}\ theStep\ =\ 0.5,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat\ =\ \textcolor{stringliteral}{"{}\%.2f"{}});}
+\DoxyCodeLine{00441\ }
+\DoxyCodeLine{00476\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00477\ \textcolor{keywordtype}{bool}\ trackbar(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ T\ *theValue,\ T\ theMin,\ T\ theMax,\ \textcolor{keywordtype}{int}\ theSegments\ =\ 1,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theLabelFormat\ =\ \textcolor{stringliteral}{"{}\%.1Lf"{}},\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theOptions\ =\ 0,\ T\ theDiscreteStep\ =\ 1);}
+\DoxyCodeLine{00478\ }
+\DoxyCodeLine{00491\ \textcolor{keywordtype}{void}\ window(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle);}
+\DoxyCodeLine{00492\ }
+\DoxyCodeLine{00506\ \textcolor{keywordtype}{void}\ rect(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor\ =\ 0xff000000);}
+\DoxyCodeLine{00507\ }
+\DoxyCodeLine{00521\ \textcolor{keywordtype}{void}\ sparkline(cv::Mat\&\ theWhere,\ std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor\ =\ 0x00FF00);}
+\DoxyCodeLine{00522\ }
+\DoxyCodeLine{00544\ \textcolor{keywordtype}{int}\ iarea(\textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight);}
+\DoxyCodeLine{00545\ }
+\DoxyCodeLine{00607\ \textcolor{keywordtype}{void}\ beginRow(cv::Mat\ \&theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth\ =\ -\/1,\ \textcolor{keywordtype}{int}\ theHeight\ =\ -\/1,\ \textcolor{keywordtype}{int}\ thePadding\ =\ 0);}
+\DoxyCodeLine{00608\ }
+\DoxyCodeLine{00617\ \textcolor{keywordtype}{void}\ endRow();}
+\DoxyCodeLine{00618\ }
+\DoxyCodeLine{00680\ \textcolor{keywordtype}{void}\ beginColumn(cv::Mat\ \&theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth\ =\ -\/1,\ \textcolor{keywordtype}{int}\ theHeight\ =\ -\/1,\ \textcolor{keywordtype}{int}\ thePadding\ =\ 0);}
+\DoxyCodeLine{00681\ }
+\DoxyCodeLine{00690\ \textcolor{keywordtype}{void}\ endColumn();}
+\DoxyCodeLine{00691\ }
+\DoxyCodeLine{00707\ \textcolor{keywordtype}{void}\ beginRow(\textcolor{keywordtype}{int}\ theWidth\ =\ -\/1,\ \textcolor{keywordtype}{int}\ theHeight\ =\ -\/1,\ \textcolor{keywordtype}{int}\ thePadding\ =\ 0);}
+\DoxyCodeLine{00708\ }
+\DoxyCodeLine{00724\ \textcolor{keywordtype}{void}\ beginColumn(\textcolor{keywordtype}{int}\ theWidth\ =\ -\/1,\ \textcolor{keywordtype}{int}\ theHeight\ =\ -\/1,\ \textcolor{keywordtype}{int}\ thePadding\ =\ 0);}
+\DoxyCodeLine{00725\ }
+\DoxyCodeLine{00741\ \textcolor{keywordtype}{void}\ space(\textcolor{keywordtype}{int}\ theValue\ =\ 5);}
+\DoxyCodeLine{00742\ }
+\DoxyCodeLine{00758\ \textcolor{keywordtype}{void}\ text(\textcolor{keyword}{const}\ cv::String\&\ theText,\ \textcolor{keywordtype}{double}\ theFontScale\ =\ 0.4,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor\ =\ 0xCECECE);}
+\DoxyCodeLine{00759\ }
+\DoxyCodeLine{00777\ \textcolor{keywordtype}{bool}\ button(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel);}
+\DoxyCodeLine{00778\ }
+\DoxyCodeLine{00793\ \textcolor{keywordtype}{bool}\ button(\textcolor{keyword}{const}\ cv::String\&\ theLabel);}
+\DoxyCodeLine{00794\ }
+\DoxyCodeLine{00817\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theIdle,\ cv::Mat\&\ theOver,\ cv::Mat\&\ theDown);}
+\DoxyCodeLine{00818\ }
+\DoxyCodeLine{00833\ \textcolor{keywordtype}{void}\ image(cv::Mat\&\ theImage);}
+\DoxyCodeLine{00834\ }
+\DoxyCodeLine{00851\ \textcolor{keywordtype}{bool}\ checkbox(\textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ *theState,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor\ =\ 0xCECECE);}
+\DoxyCodeLine{00852\ }
+\DoxyCodeLine{00875\ \textcolor{keywordtype}{void}\ printf(\textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...);}
+\DoxyCodeLine{00876\ }
+\DoxyCodeLine{00898\ \textcolor{keywordtype}{void}\ printf(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...);}
+\DoxyCodeLine{00899\ }
+\DoxyCodeLine{00917\ \textcolor{keywordtype}{int}\ counter(\textcolor{keywordtype}{int}\ *theValue,\ \textcolor{keywordtype}{int}\ theStep\ =\ 1,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat\ =\ \textcolor{stringliteral}{"{}\%d"{}});}
+\DoxyCodeLine{00918\ }
+\DoxyCodeLine{00936\ \textcolor{keywordtype}{double}\ counter(\textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keywordtype}{double}\ theStep\ =\ 0.5,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat\ =\ \textcolor{stringliteral}{"{}\%.2f"{}});}
+\DoxyCodeLine{00937\ }
+\DoxyCodeLine{00977\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ \textcolor{comment}{//\ T\ can\ be\ any\ float\ type\ (float,\ double,\ long\ double)}}
+\DoxyCodeLine{00978\ \textcolor{keywordtype}{bool}\ trackbar(\textcolor{keywordtype}{int}\ theWidth,\ T\ *theValue,\ T\ theMin,\ T\ theMax,\ \textcolor{keywordtype}{int}\ theSegments\ =\ 1,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theLabelFormat\ =\ \textcolor{stringliteral}{"{}\%.1Lf"{}},\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theOptions\ =\ 0,\ T\ theDiscreteStep\ =\ 1);}
+\DoxyCodeLine{00979\ }
+\DoxyCodeLine{00995\ \textcolor{keywordtype}{void}\ window(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle);}
+\DoxyCodeLine{00996\ }
+\DoxyCodeLine{01013\ \textcolor{keywordtype}{void}\ rect(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor\ =\ 0xff000000);}
+\DoxyCodeLine{01014\ }
+\DoxyCodeLine{01030\ \textcolor{keywordtype}{void}\ sparkline(std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor\ =\ 0x00FF00);}
+\DoxyCodeLine{01031\ }
+\DoxyCodeLine{01042\ \textcolor{keywordtype}{void}\ update(\textcolor{keyword}{const}\ cv::String\&\ theWindowName\ =\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01043\ }
+\DoxyCodeLine{01044\ \textcolor{comment}{//\ Internally\ used\ to\ handle\ mouse\ events}}
+\DoxyCodeLine{01045\ \textcolor{keywordtype}{void}\ handleMouse(\textcolor{keywordtype}{int}\ theEvent,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theFlags,\ \textcolor{keywordtype}{void}*\ theData);}
+\DoxyCodeLine{01046\ }
+\DoxyCodeLine{01047\ \textcolor{comment}{//\ Compatibility\ macros\ to\ allow\ compilation\ with\ either\ OpenCV\ 2.x\ or\ OpenCV\ 3.x}}
+\DoxyCodeLine{01048\ \textcolor{preprocessor}{\#if\ (CV\_MAJOR\_VERSION\ <\ 3)}}
+\DoxyCodeLine{01049\ \textcolor{preprocessor}{\ \ \ \ \#define\ CVUI\_ANTIALISED\ CV\_AA}}
+\DoxyCodeLine{01050\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{01051\ \textcolor{preprocessor}{\ \ \ \ \#define\ CVUI\_ANTIALISED\ cv::LINE\_AA}}
+\DoxyCodeLine{01052\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01053\ \textcolor{preprocessor}{\#define\ CVUI\_FILLED\ -\/1}}
+\DoxyCodeLine{01054\ }
+\DoxyCodeLine{01055\ \textcolor{comment}{//\ If\ we\ are\ not\ in\ a\ Windows-\/based\ environment,\ replace\ Windows-\/specific\ functions\ with}}
+\DoxyCodeLine{01056\ \textcolor{comment}{//\ their\ POSIX\ equivalents.}}
+\DoxyCodeLine{01057\ \textcolor{preprocessor}{\#if\ !defined(\_MSC\_VER)}}
+\DoxyCodeLine{01058\ \textcolor{preprocessor}{\ \ \ \ \#define\ vsprintf\_s\ vsprintf}}
+\DoxyCodeLine{01059\ \textcolor{preprocessor}{\ \ \ \ \#define\ sprintf\_s\ sprintf}}
+\DoxyCodeLine{01060\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01061\ }
+\DoxyCodeLine{01062\ \textcolor{comment}{//\ Adjust\ things\ accoridng\ to\ platform}}
+\DoxyCodeLine{01063\ \textcolor{preprocessor}{\#ifdef\ \_MSC\_VER}}
+\DoxyCodeLine{01064\ \textcolor{preprocessor}{\ \ \ \ \#define\ \_CVUI\_COMPILE\_MESSAGE(x)\ message(x)}}
+\DoxyCodeLine{01065\ }
+\DoxyCodeLine{01066\ \ \ \ \ \textcolor{comment}{//\ If\ windows.h\ has\ already\ been\ included,\ min()\ and\ max()\ will\ be\ defined.}}
+\DoxyCodeLine{01067\ \ \ \ \ \textcolor{comment}{//\ In\ such\ case,\ a\ shit\ storm\ will\ rain\ on\ us,\ producing\ all\ kinds\ of}}
+\DoxyCodeLine{01068\ \ \ \ \ \textcolor{comment}{//\ compilation\ problems\ with\ cvui.\ If\ min/max\ are\ already\ defined,}}
+\DoxyCodeLine{01069\ \ \ \ \ \textcolor{comment}{//\ let's\ undef\ them\ for\ now\ and\ redef\ them\ at\ the\ end\ of\ this\ file.}}
+\DoxyCodeLine{01070\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ min}}
+\DoxyCodeLine{01071\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ \_\_cvui\_min\ min}}
+\DoxyCodeLine{01072\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#undef\ min}}
+\DoxyCodeLine{01073\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{01074\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ max}}
+\DoxyCodeLine{01075\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ \_\_cvui\_max\ max}}
+\DoxyCodeLine{01076\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#undef\ max}}
+\DoxyCodeLine{01077\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{01078\ \textcolor{preprocessor}{\#elif\ \_\_GNUC\_\_}}
+\DoxyCodeLine{01079\ \textcolor{preprocessor}{\ \ \ \ \#define\ \_CVUI\_COMPILE\_MESSAGE(x)\ message\ x}}
+\DoxyCodeLine{01080\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01081\ }
+\DoxyCodeLine{01082\ \textcolor{comment}{//\ Some\ compilation\ messages}}
+\DoxyCodeLine{01083\ \textcolor{preprocessor}{\#define\ \_CVUI\_IMPLEMENTATION\_NOTICE\ "{}cvui.h:\ compiling\ implementation\ because\ of\ CVUI\_IMPLEMENTATION.\ See:\ https://dovyski.github.io/cvui/usage/"{}}}
+\DoxyCodeLine{01084\ \textcolor{preprocessor}{\#define\ \_CVUI\_NO\_IMPLEMENTATION\_NOTICE\ "{}cvui.h:\ implementation\ skipped.\ Ensure\ one\ of\ your\ C++\ files\ included\ cvui.h\ after\ a\ \#define\ CVUI\_IMPLEMENTATION.\ See:\ https://dovyski.github.io/cvui/usage/"{}}}
+\DoxyCodeLine{01085\ }
+\DoxyCodeLine{01086\ \textcolor{comment}{//\ Below\ is\ paranoic,\ dramatic\ bug-\/fixing\ action\ to\ ensure\ no\ evil\ macro}}
+\DoxyCodeLine{01087\ \textcolor{comment}{//\ have\ already\ defined\ our\ names.\ For\ some\ bizarre\ reason,\ cvui\ did\ not}}
+\DoxyCodeLine{01088\ \textcolor{comment}{//\ compile\ in\ one\ of\ my\ projects\ because\ OUT\ was\ already\ defined.\ So\ be\ it.}}
+\DoxyCodeLine{01089\ \textcolor{preprocessor}{\#undef\ VERSION}}
+\DoxyCodeLine{01090\ \textcolor{preprocessor}{\#undef\ ROW}}
+\DoxyCodeLine{01091\ \textcolor{preprocessor}{\#undef\ COLUMN}}
+\DoxyCodeLine{01092\ \textcolor{preprocessor}{\#undef\ DOWN}}
+\DoxyCodeLine{01093\ \textcolor{preprocessor}{\#undef\ CLICK}}
+\DoxyCodeLine{01094\ \textcolor{preprocessor}{\#undef\ OVER}}
+\DoxyCodeLine{01095\ \textcolor{preprocessor}{\#undef\ OUT}}
+\DoxyCodeLine{01096\ \textcolor{preprocessor}{\#undef\ UP}}
+\DoxyCodeLine{01097\ \textcolor{preprocessor}{\#undef\ IS\_DOWN}}
+\DoxyCodeLine{01098\ \textcolor{preprocessor}{\#undef\ LEFT\_BUTTON}}
+\DoxyCodeLine{01099\ \textcolor{preprocessor}{\#undef\ MIDDLE\_BUTTON}}
+\DoxyCodeLine{01100\ \textcolor{preprocessor}{\#undef\ RIGHT\_BUTTON}}
+\DoxyCodeLine{01101\ }
+\DoxyCodeLine{01102\ \textcolor{comment}{//\ Check\ for\ Unix\ stuff}}
+\DoxyCodeLine{01103\ \textcolor{preprocessor}{\#ifdef\ \_\_GNUC\_\_}}
+\DoxyCodeLine{01104\ \ \ \ \ \textcolor{comment}{//\ just\ to\ remove\ the\ warning\ under\ gcc\ that\ is\ introduced\ by\ the\ VERSION\ variable\ below}}
+\DoxyCodeLine{01105\ \ \ \ \ \textcolor{comment}{//\ (needed\ for\ those\ who\ compile\ with\ -\/Werror\ (make\ warning\ as\ errors)}}
+\DoxyCodeLine{01106\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ GCC\ diagnostic\ ignored\ "{}-\/Wunused-\/variable"{}}}
+\DoxyCodeLine{01107\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01108\ }
+\DoxyCodeLine{01109\ \textcolor{comment}{//\ Lib\ version}}
+\DoxyCodeLine{01110\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *VERSION\ =\ \textcolor{stringliteral}{"{}2.7.0"{}};}
+\DoxyCodeLine{01111\ }
+\DoxyCodeLine{01112\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ ROW\ =\ 0;}
+\DoxyCodeLine{01113\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ COLUMN\ =\ 1;}
+\DoxyCodeLine{01114\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ DOWN\ =\ 2;}
+\DoxyCodeLine{01115\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ CLICK\ =\ 3;}
+\DoxyCodeLine{01116\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ OVER\ =\ 4;}
+\DoxyCodeLine{01117\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ OUT\ =\ 5;}
+\DoxyCodeLine{01118\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ UP\ =\ 6;}
+\DoxyCodeLine{01119\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ IS\_DOWN\ =\ 7;}
+\DoxyCodeLine{01120\ }
+\DoxyCodeLine{01121\ \textcolor{comment}{//\ Constants\ regarding\ mouse\ buttons}}
+\DoxyCodeLine{01122\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ LEFT\_BUTTON\ =\ 0;}
+\DoxyCodeLine{01123\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ MIDDLE\_BUTTON\ =\ 1;}
+\DoxyCodeLine{01124\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ RIGHT\_BUTTON\ =\ 2;}
+\DoxyCodeLine{01125\ }
+\DoxyCodeLine{01126\ \textcolor{comment}{//\ Constants\ regarding\ components}}
+\DoxyCodeLine{01127\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ TRACKBAR\_HIDE\_SEGMENT\_LABELS\ =\ 1;}
+\DoxyCodeLine{01128\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ TRACKBAR\_HIDE\_STEP\_SCALE\ =\ 2;}
+\DoxyCodeLine{01129\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ TRACKBAR\_DISCRETE\ =\ 4;}
+\DoxyCodeLine{01130\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ TRACKBAR\_HIDE\_MIN\_MAX\_LABELS\ =\ 8;}
+\DoxyCodeLine{01131\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ TRACKBAR\_HIDE\_VALUE\_LABEL\ =\ 16;}
+\DoxyCodeLine{01132\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ TRACKBAR\_HIDE\_LABELS\ =\ 32;}
+\DoxyCodeLine{01133\ }
+\DoxyCodeLine{01134\ \textcolor{comment}{//\ Describes\ the\ block\ structure\ used\ by\ the\ lib\ to\ handle\ `begin*()`\ and\ `end*()`\ calls.}}
+\DoxyCodeLine{01135\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{01136\ \ \ \ \ cv::Mat\ where;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ where\ the\ block\ should\ be\ rendered\ to.}}
+\DoxyCodeLine{01137\ \ \ \ \ cv::Rect\ rect;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ size\ and\ position\ of\ the\ block.}}
+\DoxyCodeLine{01138\ \ \ \ \ cv::Rect\ fill;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ filled\ area\ occuppied\ by\ the\ block\ as\ it\ gets\ modified\ by\ its\ inner\ components.}}
+\DoxyCodeLine{01139\ \ \ \ \ cv::Point\ anchor;\ \ \ \ \ \ \ \textcolor{comment}{//\ the\ point\ where\ the\ next\ component\ of\ the\ block\ should\ be\ rendered.}}
+\DoxyCodeLine{01140\ \ \ \ \ \textcolor{keywordtype}{int}\ padding;\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ padding\ among\ components\ within\ this\ block.}}
+\DoxyCodeLine{01141\ \ \ \ \ \textcolor{keywordtype}{int}\ type;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ type\ of\ the\ block,\ e.g.\ ROW\ or\ COLUMN.}}
+\DoxyCodeLine{01142\ \}\ \mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}};}
+\DoxyCodeLine{01143\ }
+\DoxyCodeLine{01144\ \textcolor{comment}{//\ Describes\ a\ component\ label,\ including\ info\ about\ a\ shortcut.}}
+\DoxyCodeLine{01145\ \textcolor{comment}{//\ If\ a\ label\ contains\ "{}Re\&start"{},\ then:}}
+\DoxyCodeLine{01146\ \textcolor{comment}{//\ -\/\ hasShortcut\ will\ be\ true}}
+\DoxyCodeLine{01147\ \textcolor{comment}{//\ -\/\ shortcut\ will\ be\ 's'}}
+\DoxyCodeLine{01148\ \textcolor{comment}{//\ -\/\ textBeforeShortcut\ will\ be\ "{}Re"{}}}
+\DoxyCodeLine{01149\ \textcolor{comment}{//\ -\/\ textAfterShortcut\ will\ be\ "{}tart"{}}}
+\DoxyCodeLine{01150\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{01151\ \ \ \ \ \textcolor{keywordtype}{bool}\ hasShortcut;}
+\DoxyCodeLine{01152\ \ \ \ \ \textcolor{keywordtype}{char}\ shortcut;}
+\DoxyCodeLine{01153\ \ \ \ \ std::string\ textBeforeShortcut;}
+\DoxyCodeLine{01154\ \ \ \ \ std::string\ textAfterShortcut;}
+\DoxyCodeLine{01155\ \}\ \mbox{\hyperlink{structcvui_1_1cvui__label__t}{cvui\_label\_t}};}
+\DoxyCodeLine{01156\ }
+\DoxyCodeLine{01157\ \textcolor{comment}{//\ Describe\ a\ mouse\ button}}
+\DoxyCodeLine{01158\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{01159\ \ \ \ \ \textcolor{keywordtype}{bool}\ justReleased;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ the\ mouse\ button\ was\ released,\ i.e.\ click\ event.}}
+\DoxyCodeLine{01160\ \ \ \ \ \textcolor{keywordtype}{bool}\ justPressed;\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ the\ mouse\ button\ was\ just\ pressed,\ i.e.\ true\ for\ a\ frame\ when\ a\ button\ is\ down.}}
+\DoxyCodeLine{01161\ \ \ \ \ \textcolor{keywordtype}{bool}\ pressed;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ the\ mouse\ button\ is\ pressed\ or\ not.}}
+\DoxyCodeLine{01162\ \}\ \mbox{\hyperlink{structcvui_1_1cvui__mouse__btn__t}{cvui\_mouse\_btn\_t}};}
+\DoxyCodeLine{01163\ }
+\DoxyCodeLine{01164\ \textcolor{comment}{//\ Describe\ the\ information\ of\ the\ mouse\ cursor}}
+\DoxyCodeLine{01165\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{01166\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__mouse__btn__t}{cvui\_mouse\_btn\_t}}\ buttons[3];\ \textcolor{comment}{//\ status\ of\ each\ button.\ Use\ cvui::\{RIGHT,LEFT,MIDDLE\}\_BUTTON\ to\ access\ the\ buttons.}}
+\DoxyCodeLine{01167\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__mouse__btn__t}{cvui\_mouse\_btn\_t}}\ anyButton;\ \ \textcolor{comment}{//\ represent\ the\ behavior\ of\ all\ mouse\ buttons\ combined}}
+\DoxyCodeLine{01168\ \ \ \ \ cv::Point\ position;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ x\ and\ y\ coordinates\ of\ the\ mouse\ at\ the\ moment.}}
+\DoxyCodeLine{01169\ \}\ \mbox{\hyperlink{structcvui_1_1cvui__mouse__t}{cvui\_mouse\_t}};}
+\DoxyCodeLine{01170\ }
+\DoxyCodeLine{01171\ \textcolor{comment}{//\ Describes\ a\ (window)\ context.}}
+\DoxyCodeLine{01172\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{01173\ \ \ \ \ cv::String\ windowName;\ \ \ \ \ \ \ \textcolor{comment}{//\ name\ of\ the\ window\ related\ to\ this\ context.}}
+\DoxyCodeLine{01174\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__mouse__t}{cvui\_mouse\_t}}\ mouse;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ mouse\ cursor\ related\ to\ this\ context.}}
+\DoxyCodeLine{01175\ \}\ \mbox{\hyperlink{structcvui_1_1cvui__context__t}{cvui\_context\_t}};}
+\DoxyCodeLine{01176\ }
+\DoxyCodeLine{01177\ \textcolor{comment}{//\ Internal\ namespace\ with\ all\ code\ that\ is\ shared\ among\ components/functions.}}
+\DoxyCodeLine{01178\ \textcolor{comment}{//\ You\ should\ probably\ not\ be\ using\ anything\ from\ here.}}
+\DoxyCodeLine{01179\ \textcolor{keyword}{namespace\ }internal}
+\DoxyCodeLine{01180\ \{}
+\DoxyCodeLine{01181\ \ \ \ \ \textcolor{keyword}{static}\ cv::String\ gDefaultContext;}
+\DoxyCodeLine{01182\ \ \ \ \ \textcolor{keyword}{static}\ cv::String\ gCurrentContext;}
+\DoxyCodeLine{01183\ \ \ \ \ \textcolor{keyword}{static}\ std::map<cv::String,\ cvui\_context\_t>\ gContexts;\ \textcolor{comment}{//\ indexed\ by\ the\ window\ name.}}
+\DoxyCodeLine{01184\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ gBuffer[1024];}
+\DoxyCodeLine{01185\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ gLastKeyPressed;\ \textcolor{comment}{//\ TODO:\ collect\ it\ per\ window}}
+\DoxyCodeLine{01186\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ gDelayWaitKey;}
+\DoxyCodeLine{01187\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\ gScreen;}
+\DoxyCodeLine{01188\ }
+\DoxyCodeLine{01189\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\ \{}
+\DoxyCodeLine{01190\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ min;}
+\DoxyCodeLine{01191\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ max;}
+\DoxyCodeLine{01192\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ step;}
+\DoxyCodeLine{01193\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ segments;}
+\DoxyCodeLine{01194\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ options;}
+\DoxyCodeLine{01195\ \ \ \ \ \ \ \ \ std::string\ labelFormat;}
+\DoxyCodeLine{01196\ }
+\DoxyCodeLine{01197\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}()}
+\DoxyCodeLine{01198\ \ \ \ \ \ \ \ \ \ \ \ \ :\ min(0.)}
+\DoxyCodeLine{01199\ \ \ \ \ \ \ \ \ \ \ \ \ ,\ max(25.)}
+\DoxyCodeLine{01200\ \ \ \ \ \ \ \ \ \ \ \ \ ,\ step(1.)}
+\DoxyCodeLine{01201\ \ \ \ \ \ \ \ \ \ \ \ \ ,\ segments(0)}
+\DoxyCodeLine{01202\ \ \ \ \ \ \ \ \ \ \ \ \ ,\ options(0)}
+\DoxyCodeLine{01203\ \ \ \ \ \ \ \ \ \ \ \ \ ,\ labelFormat(\textcolor{stringliteral}{"{}\%.0Lf"{}})}
+\DoxyCodeLine{01204\ \ \ \ \ \ \ \ \ \{\}}
+\DoxyCodeLine{01205\ \ \ \ \ \};}
+\DoxyCodeLine{01206\ }
+\DoxyCodeLine{01207\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\ gStack[100];\ \textcolor{comment}{//\ TODO:\ make\ it\ dynamic?}}
+\DoxyCodeLine{01208\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ gStackCount\ =\ -\/1;}
+\DoxyCodeLine{01209\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ gTrackbarMarginX\ =\ 14;}
+\DoxyCodeLine{01210\ }
+\DoxyCodeLine{01211\ \ \ \ \ \textcolor{keywordtype}{bool}\ isMouseButton(\mbox{\hyperlink{structcvui_1_1cvui__mouse__btn__t}{cvui\_mouse\_btn\_t}}\&\ theButton,\ \textcolor{keywordtype}{int}\ theQuery);}
+\DoxyCodeLine{01212\ \ \ \ \ \textcolor{keywordtype}{void}\ resetMouseButton(\mbox{\hyperlink{structcvui_1_1cvui__mouse__btn__t}{cvui\_mouse\_btn\_t}}\&\ theButton);}
+\DoxyCodeLine{01213\ \ \ \ \ \textcolor{keywordtype}{void}\ init(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theDelayWaitKey);}
+\DoxyCodeLine{01214\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__context__t}{cvui\_context\_t}}\&\ getContext(\textcolor{keyword}{const}\ cv::String\&\ theWindowName\ =\ \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{01215\ \ \ \ \ \textcolor{keywordtype}{bool}\ bitsetHas(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBitset,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theValue);}
+\DoxyCodeLine{01216\ \ \ \ \ \textcolor{keywordtype}{void}\ error(\textcolor{keywordtype}{int}\ theId,\ std::string\ theMessage);}
+\DoxyCodeLine{01217\ \ \ \ \ \textcolor{keywordtype}{void}\ updateLayoutFlow(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ cv::Size\ theSize);}
+\DoxyCodeLine{01218\ \ \ \ \ \textcolor{keywordtype}{bool}\ blockStackEmpty();}
+\DoxyCodeLine{01219\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ topBlock();}
+\DoxyCodeLine{01220\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ pushBlock();}
+\DoxyCodeLine{01221\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ popBlock();}
+\DoxyCodeLine{01222\ \ \ \ \ \textcolor{keywordtype}{void}\ begin(\textcolor{keywordtype}{int}\ theType,\ cv::Mat\ \&theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{int}\ thePadding);}
+\DoxyCodeLine{01223\ \ \ \ \ \textcolor{keywordtype}{void}\ end(\textcolor{keywordtype}{int}\ theType);}
+\DoxyCodeLine{01224\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__label__t}{cvui\_label\_t}}\ createLabel(\textcolor{keyword}{const}\ std::string\ \&theLabel);}
+\DoxyCodeLine{01225\ \ \ \ \ \textcolor{keywordtype}{int}\ iarea(\textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight);}
+\DoxyCodeLine{01226\ \ \ \ \ \textcolor{keywordtype}{bool}\ button(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ theUpdateLayout);}
+\DoxyCodeLine{01227\ \ \ \ \ \textcolor{keywordtype}{bool}\ button(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel);}
+\DoxyCodeLine{01228\ \ \ \ \ \textcolor{keywordtype}{bool}\ button(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theIdle,\ cv::Mat\&\ theOver,\ cv::Mat\&\ theDown,\ \textcolor{keywordtype}{bool}\ theUpdateLayout);}
+\DoxyCodeLine{01229\ \ \ \ \ \textcolor{keywordtype}{void}\ image(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theImage);}
+\DoxyCodeLine{01230\ \ \ \ \ \textcolor{keywordtype}{bool}\ checkbox(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ *theState,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor);}
+\DoxyCodeLine{01231\ \ \ \ \ \textcolor{keywordtype}{void}\ text(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theText,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor,\ \textcolor{keywordtype}{bool}\ theUpdateLayout);}
+\DoxyCodeLine{01232\ \ \ \ \ \textcolor{keywordtype}{int}\ counter(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ *theValue,\ \textcolor{keywordtype}{int}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat);}
+\DoxyCodeLine{01233\ \ \ \ \ \textcolor{keywordtype}{double}\ counter(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keywordtype}{double}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat);}
+\DoxyCodeLine{01234\ \ \ \ \ \textcolor{keywordtype}{void}\ window(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle);}
+\DoxyCodeLine{01235\ \ \ \ \ \textcolor{keywordtype}{void}\ rect(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor);}
+\DoxyCodeLine{01236\ \ \ \ \ \textcolor{keywordtype}{void}\ sparkline(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theBlock,\ std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor);}
+\DoxyCodeLine{01237\ \ \ \ \ \textcolor{keywordtype}{bool}\ trackbar(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\ \&theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\&\ theParams);}
+\DoxyCodeLine{01238\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ trackbarForceValuesAsMultiplesOfSmallStep(\textcolor{keyword}{const}\ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\ \&\ theParams,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ *theValue);}
+\DoxyCodeLine{01239\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ trackbarXPixelToValue(\textcolor{keyword}{const}\ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\ \&\ theParams,\ cv::Rect\ \&\ theBounding,\ \textcolor{keywordtype}{int}\ thePixelX);}
+\DoxyCodeLine{01240\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ trackbarValueToXPixel(\textcolor{keyword}{const}\ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\ \&\ theParams,\ cv::Rect\ \&\ theBounding,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ theValue);}
+\DoxyCodeLine{01241\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ clamp01(\textcolor{keywordtype}{double}\ value);}
+\DoxyCodeLine{01242\ \ \ \ \ \textcolor{keywordtype}{void}\ findMinMax(std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{double}\ *theMin,\ \textcolor{keywordtype}{double}\ *theMax);}
+\DoxyCodeLine{01243\ \ \ \ \ cv::Scalar\ hexToScalar(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor);}
+\DoxyCodeLine{01244\ \ \ \ \ \textcolor{keywordtype}{void}\ resetRenderingBuffer(\mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ theScreen);}
+\DoxyCodeLine{01245\ }
+\DoxyCodeLine{01246\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ \textcolor{comment}{//\ T\ can\ be\ any\ floating\ point\ type\ (float,\ double,\ long\ double)}}
+\DoxyCodeLine{01247\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\ makeTrackbarParams(T\ min,\ T\ max,\ \textcolor{keywordtype}{int}\ theDecimals\ =\ 1,\ \textcolor{keywordtype}{int}\ theSegments\ =\ 1,\ T\ theStep\ =\ -\/1.,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theOptions\ =\ 0,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat\ =\ \textcolor{stringliteral}{"{}\%.1Lf"{}});}
+\DoxyCodeLine{01248\ }
+\DoxyCodeLine{01249\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{01250\ \ \ \ \ \textcolor{keywordtype}{bool}\ trackbar(T\ *theValue,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\&\ theParams);}
+\DoxyCodeLine{01251\ }
+\DoxyCodeLine{01252\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>\ \textcolor{comment}{//\ T\ can\ be\ any\ numeric\ type\ (int,\ double,\ unsigned\ int,\ etc)}}
+\DoxyCodeLine{01253\ \ \ \ \ \textcolor{keywordtype}{bool}\ trackbar(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ T\ *theValue,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\&\ theParams);}
+\DoxyCodeLine{01254\ }
+\DoxyCodeLine{01255\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ num\_type>}
+\DoxyCodeLine{01256\ \ \ \ \ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\ makeTrackbarParams(num\_type\ theMin,\ num\_type\ theMax,\ num\_type\ theStep,\ \textcolor{keywordtype}{int}\ theSegments,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theLabelFormat,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theOptions)\ \{}
+\DoxyCodeLine{01257\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structcvui_1_1internal_1_1_trackbar_params}{TrackbarParams}}\ aParams;}
+\DoxyCodeLine{01258\ }
+\DoxyCodeLine{01259\ \ \ \ \ \ \ \ \ aParams.min\ =\ (\textcolor{keywordtype}{long}\ double)theMin;}
+\DoxyCodeLine{01260\ \ \ \ \ \ \ \ \ aParams.max\ =\ (\textcolor{keywordtype}{long}\ double)theMax;}
+\DoxyCodeLine{01261\ \ \ \ \ \ \ \ \ aParams.step\ =\ (\textcolor{keywordtype}{long}\ double)theStep;}
+\DoxyCodeLine{01262\ \ \ \ \ \ \ \ \ aParams.options\ =\ theOptions;}
+\DoxyCodeLine{01263\ \ \ \ \ \ \ \ \ aParams.segments\ =\ theSegments;}
+\DoxyCodeLine{01264\ \ \ \ \ \ \ \ \ aParams.labelFormat\ =\ theLabelFormat;}
+\DoxyCodeLine{01265\ \ \ \ \ }
+\DoxyCodeLine{01266\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aParams;}
+\DoxyCodeLine{01267\ \ \ \ \ \}}
+\DoxyCodeLine{01268\ }
+\DoxyCodeLine{01269\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ num\_type>}
+\DoxyCodeLine{01270\ \ \ \ \ \textcolor{keywordtype}{bool}\ trackbar(\textcolor{keywordtype}{int}\ theWidth,\ num\_type\ *theValue,\ \textcolor{keyword}{const}\ TrackbarParams\&\ theParams)\ \{}
+\DoxyCodeLine{01271\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structcvui_1_1cvui__block__t}{cvui\_block\_t}}\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{01272\ }
+\DoxyCodeLine{01273\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aValueAsDouble\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\textcolor{keyword}{>}(*theValue);}
+\DoxyCodeLine{01274\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aResult\ =\ internal::trackbar(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theWidth,\ \&aValueAsDouble,\ theParams);}
+\DoxyCodeLine{01275\ \ \ \ \ \ \ \ \ *theValue\ =\ \textcolor{keyword}{static\_cast<}num\_type\textcolor{keyword}{>}(aValueAsDouble);}
+\DoxyCodeLine{01276\ }
+\DoxyCodeLine{01277\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aResult;}
+\DoxyCodeLine{01278\ \ \ \ \ \}}
+\DoxyCodeLine{01279\ }
+\DoxyCodeLine{01280\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ num\_type>}
+\DoxyCodeLine{01281\ \ \ \ \ \textcolor{keywordtype}{bool}\ trackbar(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ num\_type\ *theValue,\ \textcolor{keyword}{const}\ TrackbarParams\&\ theParams)\ \{}
+\DoxyCodeLine{01282\ \ \ \ \ \ \ \ \ gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{01283\ }
+\DoxyCodeLine{01284\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aValueAsDouble\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\textcolor{keyword}{>}(*theValue);}
+\DoxyCodeLine{01285\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aResult\ =\ internal::trackbar(gScreen,\ theX,\ theY,\ theWidth,\ \&aValueAsDouble,\ theParams);}
+\DoxyCodeLine{01286\ \ \ \ \ \ \ \ \ *theValue\ =\ \textcolor{keyword}{static\_cast<}num\_type\textcolor{keyword}{>}(aValueAsDouble);}
+\DoxyCodeLine{01287\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01288\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aResult;}
+\DoxyCodeLine{01289\ \ \ \ \ \}}
+\DoxyCodeLine{01290\ \}}
+\DoxyCodeLine{01291\ }
+\DoxyCodeLine{01292\ \textcolor{comment}{//\ Internal\ namespace\ that\ contains\ all\ rendering\ functions.}}
+\DoxyCodeLine{01293\ \textcolor{keyword}{namespace\ }render\ \{}
+\DoxyCodeLine{01294\ \ \ \ \ \textcolor{keywordtype}{void}\ text(cvui\_block\_t\&\ theBlock,\ \textcolor{keyword}{const}\ cv::String\&\ theText,\ cv::Point\&\ thePos,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor);}
+\DoxyCodeLine{01295\ \ \ \ \ \textcolor{keywordtype}{void}\ button(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel);}
+\DoxyCodeLine{01296\ \ \ \ \ \textcolor{keywordtype}{void}\ buttonLabel(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\ theRect,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ cv::Size\&\ theTextSize);}
+\DoxyCodeLine{01297\ \ \ \ \ \textcolor{keywordtype}{void}\ image(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theRect,\ cv::Mat\&\ theImage);}
+\DoxyCodeLine{01298\ \ \ \ \ \textcolor{keywordtype}{void}\ counter(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theShape,\ \textcolor{keyword}{const}\ cv::String\&\ theValue);}
+\DoxyCodeLine{01299\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarHandle(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea);}
+\DoxyCodeLine{01300\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarPath(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea);}
+\DoxyCodeLine{01301\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarSteps(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea);}
+\DoxyCodeLine{01302\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarSegmentLabel(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theShape,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ theValue,\ cv::Rect\&\ theWorkingArea,\ \textcolor{keywordtype}{bool}\ theShowLabel);}
+\DoxyCodeLine{01303\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarSegments(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea);}
+\DoxyCodeLine{01304\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbar(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams);}
+\DoxyCodeLine{01305\ \ \ \ \ \textcolor{keywordtype}{void}\ checkbox(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape);}
+\DoxyCodeLine{01306\ \ \ \ \ \textcolor{keywordtype}{void}\ checkboxLabel(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theRect,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ cv::Size\&\ theTextSize,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor);}
+\DoxyCodeLine{01307\ \ \ \ \ \textcolor{keywordtype}{void}\ checkboxCheck(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theShape);}
+\DoxyCodeLine{01308\ \ \ \ \ \textcolor{keywordtype}{void}\ window(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theTitleBar,\ cv::Rect\&\ theContent,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle);}
+\DoxyCodeLine{01309\ \ \ \ \ \textcolor{keywordtype}{void}\ rect(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ thePos,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor);}
+\DoxyCodeLine{01310\ \ \ \ \ \textcolor{keywordtype}{void}\ sparkline(cvui\_block\_t\&\ theBlock,\ std::vector<double>\&\ theValues,\ cv::Rect\ \&theRect,\ \textcolor{keywordtype}{double}\ theMin,\ \textcolor{keywordtype}{double}\ theMax,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor);}
+\DoxyCodeLine{01311\ }
+\DoxyCodeLine{01312\ \ \ \ \ \textcolor{keywordtype}{int}\ putText(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Scalar\ aColor,\ \textcolor{keyword}{const}\ std::string\&\ theText,\ \textcolor{keyword}{const}\ cv::Point\ \&\ thePosition);}
+\DoxyCodeLine{01313\ \ \ \ \ \textcolor{keywordtype}{int}\ putTextCentered(cvui\_block\_t\&\ theBlock,\ \textcolor{keyword}{const}\ cv::Point\ \&\ position,\ \textcolor{keyword}{const}\ std::string\ \&text);}
+\DoxyCodeLine{01314\ \}}
+\DoxyCodeLine{01315\ }
+\DoxyCodeLine{01316\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ num\_type>}
+\DoxyCodeLine{01317\ \textcolor{keywordtype}{bool}\ trackbar(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ num\_type\ *theValue,\ num\_type\ theMin,\ num\_type\ theMax,\ \textcolor{keywordtype}{int}\ theSegments,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theLabelFormat,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theOptions,\ num\_type\ theDiscreteStep)\ \{}
+\DoxyCodeLine{01318\ \ \ \ \ internal::TrackbarParams\ aParams\ =\ internal::makeTrackbarParams(theMin,\ theMax,\ theDiscreteStep,\ theSegments,\ theLabelFormat,\ theOptions);}
+\DoxyCodeLine{01319\ \ \ \ \ \textcolor{keywordflow}{return}\ trackbar<num\_type>(theWhere,\ theX,\ theY,\ theWidth,\ theValue,\ aParams);}
+\DoxyCodeLine{01320\ \}}
+\DoxyCodeLine{01321\ }
+\DoxyCodeLine{01322\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ num\_type>}
+\DoxyCodeLine{01323\ \textcolor{keywordtype}{bool}\ trackbar(\textcolor{keywordtype}{int}\ theWidth,\ num\_type\ *theValue,\ num\_type\ theMin,\ num\_type\ theMax,\ \textcolor{keywordtype}{int}\ theSegments,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theLabelFormat,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theOptions,\ num\_type\ theDiscreteStep)\ \{}
+\DoxyCodeLine{01324\ \ \ \ \ internal::TrackbarParams\ aParams\ =\ internal::makeTrackbarParams(theMin,\ theMax,\ theDiscreteStep,\ theSegments,\ theLabelFormat,\ theOptions);}
+\DoxyCodeLine{01325\ \ \ \ \ \textcolor{keywordflow}{return}\ trackbar<num\_type>(theWidth,\ theValue,\ aParams);}
+\DoxyCodeLine{01326\ \}}
+\DoxyCodeLine{01327\ }
+\DoxyCodeLine{01328\ \}\ \textcolor{comment}{//\ namespace\ cvui}}
+\DoxyCodeLine{01329\ }
+\DoxyCodeLine{01330\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ \_CVUI\_H\_}}
+\DoxyCodeLine{01331\ }
+\DoxyCodeLine{01332\ \textcolor{comment}{//\ Below\ this\ line\ is\ the\ implementation\ of\ all\ functions\ declared\ above.}}
+\DoxyCodeLine{01333\ }
+\DoxyCodeLine{01334\ \textcolor{preprocessor}{\#if\ !defined(CVUI\_IMPLEMENTATION)\ \&\&\ !defined(CVUI\_DISABLE\_COMPILATION\_NOTICES)}}
+\DoxyCodeLine{01335\ \ \ \ \ \textcolor{comment}{//\ cvui.h\ is\ being\ included\ without\ CVUI\_IMEPLEMENTATION.\ Let's\ output\ a\ compile\ notice\ about\ it}}
+\DoxyCodeLine{01336\ \ \ \ \ \textcolor{comment}{//\ to\ help\ those\ trying\ to\ debug\ possible\ cvui\ compilation\ errors.}}
+\DoxyCodeLine{01337\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ \_CVUI\_COMPILE\_MESSAGE(\_CVUI\_NO\_IMPLEMENTATION\_NOTICE)}}
+\DoxyCodeLine{01338\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01339\ }
+\DoxyCodeLine{01340\ \textcolor{preprocessor}{\#ifdef\ CVUI\_IMPLEMENTATION}}
+\DoxyCodeLine{01341\ }
+\DoxyCodeLine{01342\ \textcolor{comment}{//\ Show\ some\ helping\ hand\ in\ case\ cvui.h\ does\ not\ compile\ because\ of\ inclusion\ in\ multiple\ files.}}
+\DoxyCodeLine{01343\ \textcolor{preprocessor}{\#ifndef\ CVUI\_DISABLE\_COMPILATION\_NOTICES}}
+\DoxyCodeLine{01344\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ \_CVUI\_COMPILE\_MESSAGE(\_CVUI\_IMPLEMENTATION\_NOTICE)}}
+\DoxyCodeLine{01345\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{01346\ }
+\DoxyCodeLine{01347\ \textcolor{keyword}{namespace\ }cvui}
+\DoxyCodeLine{01348\ \{}
+\DoxyCodeLine{01349\ }
+\DoxyCodeLine{01350\ \textcolor{comment}{//\ This\ is\ an\ internal\ namespace\ with\ all\ code}}
+\DoxyCodeLine{01351\ \textcolor{comment}{//\ that\ is\ shared\ among\ components/functions}}
+\DoxyCodeLine{01352\ \textcolor{keyword}{namespace\ }internal}
+\DoxyCodeLine{01353\ \{}
+\DoxyCodeLine{01354\ \ \ \ \ \textcolor{keywordtype}{bool}\ isMouseButton(cvui\_mouse\_btn\_t\&\ theButton,\ \textcolor{keywordtype}{int}\ theQuery)\ \{}
+\DoxyCodeLine{01355\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aRet\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01356\ }
+\DoxyCodeLine{01357\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (theQuery)\ \{}
+\DoxyCodeLine{01358\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ cvui::CLICK:}
+\DoxyCodeLine{01359\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ cvui::UP:}
+\DoxyCodeLine{01360\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aRet\ =\ theButton.justReleased;\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01361\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ cvui::DOWN:}
+\DoxyCodeLine{01362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aRet\ =\ theButton.justPressed;\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01363\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ cvui::IS\_DOWN:}
+\DoxyCodeLine{01364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aRet\ =\ theButton.pressed;\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01365\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01366\ }
+\DoxyCodeLine{01367\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aRet;}
+\DoxyCodeLine{01368\ \ \ \ \ \}}
+\DoxyCodeLine{01369\ }
+\DoxyCodeLine{01370\ \ \ \ \ \textcolor{keywordtype}{void}\ resetMouseButton(cvui\_mouse\_btn\_t\&\ theButton)\ \{}
+\DoxyCodeLine{01371\ \ \ \ \ \ \ \ \ theButton.justPressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01372\ \ \ \ \ \ \ \ \ theButton.justReleased\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01373\ \ \ \ \ \ \ \ \ theButton.pressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01374\ \ \ \ \ \}}
+\DoxyCodeLine{01375\ }
+\DoxyCodeLine{01376\ \ \ \ \ \textcolor{keywordtype}{void}\ init(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theDelayWaitKey)\ \{}
+\DoxyCodeLine{01377\ \ \ \ \ \ \ \ \ internal::gDefaultContext\ =\ theWindowName;}
+\DoxyCodeLine{01378\ \ \ \ \ \ \ \ \ internal::gCurrentContext\ =\ theWindowName;}
+\DoxyCodeLine{01379\ \ \ \ \ \ \ \ \ internal::gDelayWaitKey\ =\ theDelayWaitKey;}
+\DoxyCodeLine{01380\ \ \ \ \ \ \ \ \ internal::gLastKeyPressed\ =\ -\/1;}
+\DoxyCodeLine{01381\ \ \ \ \ \}}
+\DoxyCodeLine{01382\ }
+\DoxyCodeLine{01383\ \ \ \ \ cvui\_context\_t\&\ getContext(\textcolor{keyword}{const}\ cv::String\&\ theWindowName)\ \{}
+\DoxyCodeLine{01384\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!theWindowName.empty())\ \{}
+\DoxyCodeLine{01385\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Get\ context\ in\ particular}}
+\DoxyCodeLine{01386\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ internal::gContexts[theWindowName];}
+\DoxyCodeLine{01387\ }
+\DoxyCodeLine{01388\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!internal::gCurrentContext.empty())\ \{}
+\DoxyCodeLine{01389\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ No\ window\ provided,\ return\ currently\ active\ context.}}
+\DoxyCodeLine{01390\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ internal::gContexts[internal::gCurrentContext];}
+\DoxyCodeLine{01391\ }
+\DoxyCodeLine{01392\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!internal::gDefaultContext.empty())\ \{}
+\DoxyCodeLine{01393\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ We\ have\ no\ active\ context,\ so\ let's\ use\ the\ default\ one.}}
+\DoxyCodeLine{01394\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ internal::gContexts[internal::gDefaultContext];}
+\DoxyCodeLine{01395\ }
+\DoxyCodeLine{01396\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01397\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apparently\ we\ have\ no\ window\ at\ all!\ <o>}}
+\DoxyCodeLine{01398\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ This\ should\ not\ happen.\ Probably\ cvui::init()\ was\ never\ called.}}
+\DoxyCodeLine{01399\ \ \ \ \ \ \ \ \ \ \ \ \ internal::error(5,\ \textcolor{stringliteral}{"{}Unable\ to\ read\ context.\ Did\ you\ forget\ to\ call\ cvui::init()?"{}});}
+\DoxyCodeLine{01400\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ internal::gContexts[\textcolor{stringliteral}{"{}first"{}}];\ \textcolor{comment}{//\ return\ to\ make\ the\ compiler\ happy.}}
+\DoxyCodeLine{01401\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01402\ \ \ \ \ \}}
+\DoxyCodeLine{01403\ }
+\DoxyCodeLine{01404\ \ \ \ \ \textcolor{keywordtype}{bool}\ bitsetHas(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBitset,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theValue)\ \{}
+\DoxyCodeLine{01405\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (theBitset\ \&\ theValue)\ !=\ 0;}
+\DoxyCodeLine{01406\ \ \ \ \ \}}
+\DoxyCodeLine{01407\ }
+\DoxyCodeLine{01408\ \ \ \ \ \textcolor{keywordtype}{void}\ error(\textcolor{keywordtype}{int}\ theId,\ std::string\ theMessage)\ \{}
+\DoxyCodeLine{01409\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}[CVUI]\ Fatal\ error\ (code\ "{}}\ <<\ theId\ <<\ \textcolor{stringliteral}{"{}):\ "{}}\ <<\ theMessage\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{01410\ \ \ \ \ \ \ \ \ cv::waitKey(100000);}
+\DoxyCodeLine{01411\ \ \ \ \ \ \ \ \ exit(-\/1);}
+\DoxyCodeLine{01412\ \ \ \ \ \}}
+\DoxyCodeLine{01413\ }
+\DoxyCodeLine{01414\ \ \ \ \ \textcolor{keywordtype}{void}\ updateLayoutFlow(cvui\_block\_t\&\ theBlock,\ cv::Size\ theSize)\ \{}
+\DoxyCodeLine{01415\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aValue;}
+\DoxyCodeLine{01416\ }
+\DoxyCodeLine{01417\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theBlock.type\ ==\ ROW)\ \{}
+\DoxyCodeLine{01418\ \ \ \ \ \ \ \ \ \ \ \ \ aValue\ =\ theSize.width\ +\ theBlock.padding;}
+\DoxyCodeLine{01419\ }
+\DoxyCodeLine{01420\ \ \ \ \ \ \ \ \ \ \ \ \ theBlock.anchor.x\ +=\ aValue;}
+\DoxyCodeLine{01421\ \ \ \ \ \ \ \ \ \ \ \ \ theBlock.fill.width\ +=\ aValue;}
+\DoxyCodeLine{01422\ \ \ \ \ \ \ \ \ \ \ \ \ theBlock.fill.height\ =\ std::max(theSize.height,\ theBlock.fill.height);}
+\DoxyCodeLine{01423\ }
+\DoxyCodeLine{01424\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01425\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (theBlock.type\ ==\ COLUMN)\ \{}
+\DoxyCodeLine{01426\ \ \ \ \ \ \ \ \ \ \ \ \ aValue\ =\ theSize.height\ +\ theBlock.padding;}
+\DoxyCodeLine{01427\ }
+\DoxyCodeLine{01428\ \ \ \ \ \ \ \ \ \ \ \ \ theBlock.anchor.y\ +=\ aValue;}
+\DoxyCodeLine{01429\ \ \ \ \ \ \ \ \ \ \ \ \ theBlock.fill.height\ +=\ aValue;}
+\DoxyCodeLine{01430\ \ \ \ \ \ \ \ \ \ \ \ \ theBlock.fill.width\ =\ std::max(theSize.width,\ theBlock.fill.width);}
+\DoxyCodeLine{01431\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01432\ \ \ \ \ \}}
+\DoxyCodeLine{01433\ }
+\DoxyCodeLine{01434\ \ \ \ \ \textcolor{keywordtype}{bool}\ blockStackEmpty()\ \{}
+\DoxyCodeLine{01435\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ gStackCount\ ==\ -\/1;}
+\DoxyCodeLine{01436\ \ \ \ \ \}}
+\DoxyCodeLine{01437\ }
+\DoxyCodeLine{01438\ \ \ \ \ cvui\_block\_t\&\ topBlock()\ \{}
+\DoxyCodeLine{01439\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (gStackCount\ <\ 0)\ \{}
+\DoxyCodeLine{01440\ \ \ \ \ \ \ \ \ \ \ \ \ error(3,\ \textcolor{stringliteral}{"{}You\ are\ using\ a\ function\ that\ should\ be\ enclosed\ by\ begin*()\ and\ end*(),\ but\ you\ probably\ forgot\ to\ call\ begin*()."{}});}
+\DoxyCodeLine{01441\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01442\ }
+\DoxyCodeLine{01443\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ gStack[gStackCount];}
+\DoxyCodeLine{01444\ \ \ \ \ \}}
+\DoxyCodeLine{01445\ }
+\DoxyCodeLine{01446\ \ \ \ \ cvui\_block\_t\&\ pushBlock()\ \{}
+\DoxyCodeLine{01447\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ gStack[++gStackCount];}
+\DoxyCodeLine{01448\ \ \ \ \ \}}
+\DoxyCodeLine{01449\ }
+\DoxyCodeLine{01450\ \ \ \ \ cvui\_block\_t\&\ popBlock()\ \{}
+\DoxyCodeLine{01451\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ there\ is\ anything\ to\ be\ popped\ out\ from\ the\ stack.}}
+\DoxyCodeLine{01452\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (gStackCount\ <\ 0)\ \{}
+\DoxyCodeLine{01453\ \ \ \ \ \ \ \ \ \ \ \ \ error(1,\ \textcolor{stringliteral}{"{}Mismatch\ in\ the\ number\ of\ begin*()/end*()\ calls.\ You\ are\ calling\ one\ more\ than\ the\ other."{}});}
+\DoxyCodeLine{01454\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01455\ }
+\DoxyCodeLine{01456\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ gStack[gStackCount-\/-\/];}
+\DoxyCodeLine{01457\ \ \ \ \ \}}
+\DoxyCodeLine{01458\ }
+\DoxyCodeLine{01459\ \ \ \ \ \textcolor{keywordtype}{void}\ begin(\textcolor{keywordtype}{int}\ theType,\ cv::Mat\ \&theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{int}\ thePadding)\ \{}
+\DoxyCodeLine{01460\ \ \ \ \ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::pushBlock();}
+\DoxyCodeLine{01461\ }
+\DoxyCodeLine{01462\ \ \ \ \ \ \ \ \ aBlock.where\ =\ theWhere;}
+\DoxyCodeLine{01463\ }
+\DoxyCodeLine{01464\ \ \ \ \ \ \ \ \ aBlock.rect.x\ =\ theX;}
+\DoxyCodeLine{01465\ \ \ \ \ \ \ \ \ aBlock.rect.y\ =\ theY;}
+\DoxyCodeLine{01466\ \ \ \ \ \ \ \ \ aBlock.rect.width\ =\ theWidth;}
+\DoxyCodeLine{01467\ \ \ \ \ \ \ \ \ aBlock.rect.height\ =\ theHeight;}
+\DoxyCodeLine{01468\ }
+\DoxyCodeLine{01469\ \ \ \ \ \ \ \ \ aBlock.fill\ =\ aBlock.rect;}
+\DoxyCodeLine{01470\ \ \ \ \ \ \ \ \ aBlock.fill.width\ =\ 0;}
+\DoxyCodeLine{01471\ \ \ \ \ \ \ \ \ aBlock.fill.height\ =\ 0;}
+\DoxyCodeLine{01472\ }
+\DoxyCodeLine{01473\ \ \ \ \ \ \ \ \ aBlock.anchor.x\ =\ theX;}
+\DoxyCodeLine{01474\ \ \ \ \ \ \ \ \ aBlock.anchor.y\ =\ theY;}
+\DoxyCodeLine{01475\ }
+\DoxyCodeLine{01476\ \ \ \ \ \ \ \ \ aBlock.padding\ =\ thePadding;}
+\DoxyCodeLine{01477\ \ \ \ \ \ \ \ \ aBlock.type\ =\ theType;}
+\DoxyCodeLine{01478\ \ \ \ \ \}}
+\DoxyCodeLine{01479\ }
+\DoxyCodeLine{01480\ \ \ \ \ \textcolor{keywordtype}{void}\ end(\textcolor{keywordtype}{int}\ theType)\ \{}
+\DoxyCodeLine{01481\ \ \ \ \ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ popBlock();}
+\DoxyCodeLine{01482\ }
+\DoxyCodeLine{01483\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aBlock.type\ !=\ theType)\ \{}
+\DoxyCodeLine{01484\ \ \ \ \ \ \ \ \ \ \ \ \ error(4,\ \textcolor{stringliteral}{"{}Calling\ wrong\ type\ of\ end*().\ E.g.\ endColumn()\ instead\ of\ endRow().\ Check\ if\ your\ begin*()\ calls\ are\ matched\ with\ their\ appropriate\ end*()\ calls."{}});}
+\DoxyCodeLine{01485\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01486\ }
+\DoxyCodeLine{01487\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ we\ still\ have\ blocks\ in\ the\ stack,\ we\ must\ update}}
+\DoxyCodeLine{01488\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ current\ top\ with\ the\ dimensions\ that\ were\ filled\ by}}
+\DoxyCodeLine{01489\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ newly\ popped\ block.}}
+\DoxyCodeLine{01490\ }
+\DoxyCodeLine{01491\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!blockStackEmpty())\ \{}
+\DoxyCodeLine{01492\ \ \ \ \ \ \ \ \ \ \ \ \ cvui\_block\_t\&\ aTop\ =\ topBlock();}
+\DoxyCodeLine{01493\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Size\ aSize;}
+\DoxyCodeLine{01494\ }
+\DoxyCodeLine{01495\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ the\ block\ has\ rect.width\ <\ 0\ or\ rect.heigth\ <\ 0,\ it\ means\ the}}
+\DoxyCodeLine{01496\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ user\ don't\ want\ to\ calculate\ the\ block's\ width/height.\ It's\ up\ to}}
+\DoxyCodeLine{01497\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ us\ do\ to\ the\ math.\ In\ that\ case,\ we\ use\ the\ block's\ fill\ rect\ to\ find}}
+\DoxyCodeLine{01498\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ out\ the\ occupied\ space.\ If\ the\ block's\ width/height\ is\ greater\ than}}
+\DoxyCodeLine{01499\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ zero,\ then\ the\ user\ is\ very\ specific\ about\ the\ desired\ size.\ In\ that}}
+\DoxyCodeLine{01500\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ case,\ we\ use\ the\ provided\ width/height,\ no\ matter\ what\ the\ fill\ rect}}
+\DoxyCodeLine{01501\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ actually\ is.}}
+\DoxyCodeLine{01502\ \ \ \ \ \ \ \ \ \ \ \ \ aSize.width\ =\ aBlock.rect.width\ <\ 0\ ?\ aBlock.fill.width\ :\ aBlock.rect.width;}
+\DoxyCodeLine{01503\ \ \ \ \ \ \ \ \ \ \ \ \ aSize.height\ =\ aBlock.rect.height\ <\ 0\ ?\ aBlock.fill.height\ :\ aBlock.rect.height;}
+\DoxyCodeLine{01504\ }
+\DoxyCodeLine{01505\ \ \ \ \ \ \ \ \ \ \ \ \ updateLayoutFlow(aTop,\ aSize);}
+\DoxyCodeLine{01506\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01507\ \ \ \ \ \}}
+\DoxyCodeLine{01508\ }
+\DoxyCodeLine{01509\ \ \ \ \ \textcolor{comment}{//\ Find\ the\ min\ and\ max\ values\ of\ a\ vector}}
+\DoxyCodeLine{01510\ \ \ \ \ \textcolor{keywordtype}{void}\ findMinMax(std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{double}\ *theMin,\ \textcolor{keywordtype}{double}\ *theMax)\ \{}
+\DoxyCodeLine{01511\ \ \ \ \ \ \ \ \ std::vector<double>::size\_type\ aSize\ =\ theValues.size(),\ i;}
+\DoxyCodeLine{01512\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ aMin\ =\ theValues[0],\ aMax\ =\ theValues[0];}
+\DoxyCodeLine{01513\ }
+\DoxyCodeLine{01514\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (i\ =\ 0;\ i\ <\ aSize;\ i++)\ \{}
+\DoxyCodeLine{01515\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theValues[i]\ <\ aMin)\ \{}
+\DoxyCodeLine{01516\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aMin\ =\ theValues[i];}
+\DoxyCodeLine{01517\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01518\ }
+\DoxyCodeLine{01519\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theValues[i]\ >\ aMax)\ \{}
+\DoxyCodeLine{01520\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aMax\ =\ theValues[i];}
+\DoxyCodeLine{01521\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01522\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01523\ }
+\DoxyCodeLine{01524\ \ \ \ \ \ \ \ \ *theMin\ =\ aMin;}
+\DoxyCodeLine{01525\ \ \ \ \ \ \ \ \ *theMax\ =\ aMax;}
+\DoxyCodeLine{01526\ \ \ \ \ \}}
+\DoxyCodeLine{01527\ }
+\DoxyCodeLine{01528\ \ \ \ \ cvui\_label\_t\ createLabel(\textcolor{keyword}{const}\ std::string\ \&theLabel)\ \{}
+\DoxyCodeLine{01529\ \ \ \ \ \ \ \ \ cvui\_label\_t\ aLabel;}
+\DoxyCodeLine{01530\ \ \ \ \ \ \ \ \ std::stringstream\ aBefore,\ aAfter;}
+\DoxyCodeLine{01531\ }
+\DoxyCodeLine{01532\ \ \ \ \ \ \ \ \ aLabel.hasShortcut\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01533\ \ \ \ \ \ \ \ \ aLabel.shortcut\ =\ 0;}
+\DoxyCodeLine{01534\ \ \ \ \ \ \ \ \ aLabel.textBeforeShortcut\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01535\ \ \ \ \ \ \ \ \ aLabel.textAfterShortcut\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{01536\ }
+\DoxyCodeLine{01537\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ theLabel.size();\ i++)\ \{}
+\DoxyCodeLine{01538\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ c\ =\ theLabel[i];}
+\DoxyCodeLine{01539\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((c\ ==\ \textcolor{charliteral}{'\&'})\ \&\&\ (i\ <\ theLabel.size()\ -\/\ 1))\ \{}
+\DoxyCodeLine{01540\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aLabel.hasShortcut\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01541\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aLabel.shortcut\ =\ theLabel[i\ +\ 1];}
+\DoxyCodeLine{01542\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++i;}
+\DoxyCodeLine{01543\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01544\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!aLabel.hasShortcut)\ \{}
+\DoxyCodeLine{01545\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aBefore\ <<\ c;}
+\DoxyCodeLine{01546\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01547\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01548\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aAfter\ <<\ c;}
+\DoxyCodeLine{01549\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01550\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01551\ }
+\DoxyCodeLine{01552\ \ \ \ \ \ \ \ \ aLabel.textBeforeShortcut\ =\ aBefore.str();}
+\DoxyCodeLine{01553\ \ \ \ \ \ \ \ \ aLabel.textAfterShortcut\ =\ aAfter.str();}
+\DoxyCodeLine{01554\ }
+\DoxyCodeLine{01555\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aLabel;}
+\DoxyCodeLine{01556\ \ \ \ \ \}}
+\DoxyCodeLine{01557\ }
+\DoxyCodeLine{01558\ \ \ \ \ cv::Scalar\ hexToScalar(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{01559\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aAlpha\ =\ (theColor\ >>\ 24)\ \&\ 0xff;}
+\DoxyCodeLine{01560\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aRed\ =\ (theColor\ >>\ 16)\ \&\ 0xff;}
+\DoxyCodeLine{01561\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aGreen\ =\ (theColor\ >>\ 8)\ \&\ 0xff;}
+\DoxyCodeLine{01562\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aBlue\ =\ theColor\ \&\ 0xff;}
+\DoxyCodeLine{01563\ }
+\DoxyCodeLine{01564\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ cv::Scalar(aBlue,\ aGreen,\ aRed,\ aAlpha);}
+\DoxyCodeLine{01565\ \ \ \ \ \}}
+\DoxyCodeLine{01566\ }
+\DoxyCodeLine{01567\ \ \ \ \ \textcolor{keywordtype}{void}\ resetRenderingBuffer(cvui\_block\_t\&\ theScreen)\ \{}
+\DoxyCodeLine{01568\ \ \ \ \ \ \ \ \ theScreen.rect.x\ =\ 0;}
+\DoxyCodeLine{01569\ \ \ \ \ \ \ \ \ theScreen.rect.y\ =\ 0;}
+\DoxyCodeLine{01570\ \ \ \ \ \ \ \ \ theScreen.rect.width\ =\ 0;}
+\DoxyCodeLine{01571\ \ \ \ \ \ \ \ \ theScreen.rect.height\ =\ 0;}
+\DoxyCodeLine{01572\ }
+\DoxyCodeLine{01573\ \ \ \ \ \ \ \ \ theScreen.fill\ =\ theScreen.rect;}
+\DoxyCodeLine{01574\ \ \ \ \ \ \ \ \ theScreen.fill.width\ =\ 0;}
+\DoxyCodeLine{01575\ \ \ \ \ \ \ \ \ theScreen.fill.height\ =\ 0;}
+\DoxyCodeLine{01576\ }
+\DoxyCodeLine{01577\ \ \ \ \ \ \ \ \ theScreen.anchor.x\ =\ 0;}
+\DoxyCodeLine{01578\ \ \ \ \ \ \ \ \ theScreen.anchor.y\ =\ 0;}
+\DoxyCodeLine{01579\ }
+\DoxyCodeLine{01580\ \ \ \ \ \ \ \ \ theScreen.padding\ =\ 0;}
+\DoxyCodeLine{01581\ \ \ \ \ \}}
+\DoxyCodeLine{01582\ }
+\DoxyCodeLine{01583\ }
+\DoxyCodeLine{01584\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ clamp01(\textcolor{keywordtype}{double}\ value)}
+\DoxyCodeLine{01585\ \ \ \ \ \{}
+\DoxyCodeLine{01586\ \ \ \ \ \ \ \ \ value\ =\ value\ >\ 1.\ ?\ 1.\ :\ value;}
+\DoxyCodeLine{01587\ \ \ \ \ \ \ \ \ value\ =\ value\ <\ 0.\ ?\ 0.\ :\ value;}
+\DoxyCodeLine{01588\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{01589\ \ \ \ \ \}}
+\DoxyCodeLine{01590\ }
+\DoxyCodeLine{01591\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ trackbarForceValuesAsMultiplesOfSmallStep(\textcolor{keyword}{const}\ TrackbarParams\ \&\ theParams,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ *theValue)}
+\DoxyCodeLine{01592\ \ \ \ \ \{}
+\DoxyCodeLine{01593\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bitsetHas(theParams.options,\ TRACKBAR\_DISCRETE)\ \&\&\ theParams.step\ !=\ 0.)\ \{}
+\DoxyCodeLine{01594\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ k\ =\ (*theValue\ -\/\ theParams.min)\ /\ theParams.step;}
+\DoxyCodeLine{01595\ \ \ \ \ \ \ \ \ \ \ \ \ k\ =\ (\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double})cvRound((\textcolor{keywordtype}{double})k);}
+\DoxyCodeLine{01596\ \ \ \ \ \ \ \ \ \ \ \ \ *theValue\ =\ theParams.min\ +\ theParams.step\ *\ k;}
+\DoxyCodeLine{01597\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01598\ \ \ \ \ \}}
+\DoxyCodeLine{01599\ }
+\DoxyCodeLine{01600\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ trackbarXPixelToValue(\textcolor{keyword}{const}\ TrackbarParams\ \&\ theParams,\ cv::Rect\ \&\ theBounding,\ \textcolor{keywordtype}{int}\ thePixelX)}
+\DoxyCodeLine{01601\ \ \ \ \ \{}
+\DoxyCodeLine{01602\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ ratio\ =\ (thePixelX\ -\/\ (\textcolor{keywordtype}{long}\ double)(theBounding.x\ +\ gTrackbarMarginX))\ /\ (\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double})(theBounding.width\ -\/\ 2\ *\ gTrackbarMarginX);}
+\DoxyCodeLine{01603\ \ \ \ \ \ \ \ \ ratio\ =\ clamp01(ratio);}
+\DoxyCodeLine{01604\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ value\ =\ theParams.min\ +\ ratio\ *\ (theParams.max\ -\/\ theParams.min);}
+\DoxyCodeLine{01605\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ value;}
+\DoxyCodeLine{01606\ \ \ \ \ \}}
+\DoxyCodeLine{01607\ }
+\DoxyCodeLine{01608\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ trackbarValueToXPixel(\textcolor{keyword}{const}\ TrackbarParams\ \&\ theParams,\ cv::Rect\ \&\ theBounding,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ theValue)}
+\DoxyCodeLine{01609\ \ \ \ \ \{}
+\DoxyCodeLine{01610\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aRatio\ =\ (theValue\ -\/\ theParams.min)\ /\ (theParams.max\ -\/\ theParams.min);}
+\DoxyCodeLine{01611\ \ \ \ \ \ \ \ \ aRatio\ =\ clamp01(aRatio);}
+\DoxyCodeLine{01612\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ thePixelsX\ =\ (\textcolor{keywordtype}{long}\ double)theBounding.x\ +\ gTrackbarMarginX\ +\ aRatio\ *\ (\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double})(theBounding.width\ -\/\ 2\ *\ gTrackbarMarginX);}
+\DoxyCodeLine{01613\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (\textcolor{keywordtype}{int})thePixelsX;}
+\DoxyCodeLine{01614\ \ \ \ \ \}}
+\DoxyCodeLine{01615\ }
+\DoxyCodeLine{01616\ \ \ \ \ \textcolor{keywordtype}{int}\ iarea(\textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight)\ \{}
+\DoxyCodeLine{01617\ \ \ \ \ \ \ \ \ cvui\_mouse\_t\&\ aMouse\ =\ internal::getContext().mouse;}
+\DoxyCodeLine{01618\ }
+\DoxyCodeLine{01619\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ By\ default,\ return\ that\ the\ mouse\ is\ out\ of\ the\ interaction\ area.}}
+\DoxyCodeLine{01620\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aRet\ =\ cvui::OUT;}
+\DoxyCodeLine{01621\ }
+\DoxyCodeLine{01622\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ the\ mouse\ is\ over\ the\ interaction\ area.}}
+\DoxyCodeLine{01623\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aMouseIsOver\ =\ cv::Rect(theX,\ theY,\ theWidth,\ theHeight).contains(aMouse.position);}
+\DoxyCodeLine{01624\ }
+\DoxyCodeLine{01625\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aMouseIsOver)\ \{}
+\DoxyCodeLine{01626\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aMouse.anyButton.pressed)\ \{}
+\DoxyCodeLine{01627\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aRet\ =\ cvui::DOWN;}
+\DoxyCodeLine{01628\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01629\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aRet\ =\ cvui::OVER;}
+\DoxyCodeLine{01630\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01631\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01632\ }
+\DoxyCodeLine{01633\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Tell\ if\ the\ button\ was\ clicked\ or\ not}}
+\DoxyCodeLine{01634\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aMouseIsOver\ \&\&\ aMouse.anyButton.justReleased)\ \{}
+\DoxyCodeLine{01635\ \ \ \ \ \ \ \ \ \ \ \ \ aRet\ =\ cvui::CLICK;}
+\DoxyCodeLine{01636\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01637\ }
+\DoxyCodeLine{01638\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aRet;}
+\DoxyCodeLine{01639\ \ \ \ \ \}}
+\DoxyCodeLine{01640\ }
+\DoxyCodeLine{01641\ \ \ \ \ \textcolor{keywordtype}{bool}\ button(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ theUpdateLayout)\ \{}
+\DoxyCodeLine{01642\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ the\ space\ that\ the\ label\ will\ fill}}
+\DoxyCodeLine{01643\ \ \ \ \ \ \ \ \ cv::Size\ aTextSize\ =\ getTextSize(theLabel,\ cv::FONT\_HERSHEY\_SIMPLEX,\ 0.4,\ 1,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01644\ }
+\DoxyCodeLine{01645\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Make\ the\ button\ bit\ enough\ to\ house\ the\ label}}
+\DoxyCodeLine{01646\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(theX,\ theY,\ theWidth,\ theHeight);}
+\DoxyCodeLine{01647\ }
+\DoxyCodeLine{01648\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Render\ the\ button\ according\ to\ mouse\ interaction,\ e.g.\ OVER,\ DOWN,\ OUT.}}
+\DoxyCodeLine{01649\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aStatus\ =\ cvui::iarea(theX,\ theY,\ aRect.width,\ aRect.height);}
+\DoxyCodeLine{01650\ \ \ \ \ \ \ \ \ render::button(theBlock,\ aStatus,\ aRect,\ theLabel);}
+\DoxyCodeLine{01651\ \ \ \ \ \ \ \ \ render::buttonLabel(theBlock,\ aStatus,\ aRect,\ theLabel,\ aTextSize);}
+\DoxyCodeLine{01652\ }
+\DoxyCodeLine{01653\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow\ according\ to\ button\ size}}
+\DoxyCodeLine{01654\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ we\ were\ told\ to\ update.}}
+\DoxyCodeLine{01655\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theUpdateLayout)\ \{}
+\DoxyCodeLine{01656\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Size\ aSize(theWidth,\ theHeight);}
+\DoxyCodeLine{01657\ \ \ \ \ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01658\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01659\ }
+\DoxyCodeLine{01660\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aWasShortcutPressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01661\ }
+\DoxyCodeLine{01662\ \ \ \ \ \ \ \ \ \textcolor{comment}{//Handle\ keyboard\ shortcuts}}
+\DoxyCodeLine{01663\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (internal::gLastKeyPressed\ !=\ -\/1)\ \{}
+\DoxyCodeLine{01664\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ replace\ with\ something\ like\ strpos().\ I\ think\ it\ has\ better\ performance.}}
+\DoxyCodeLine{01665\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ aLabel\ =\ internal::createLabel(theLabel);}
+\DoxyCodeLine{01666\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aLabel.hasShortcut\ \&\&\ (tolower(aLabel.shortcut)\ ==\ tolower((\textcolor{keywordtype}{char})internal::gLastKeyPressed)))\ \{}
+\DoxyCodeLine{01667\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ aWasShortcutPressed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{01668\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01669\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01670\ }
+\DoxyCodeLine{01671\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Return\ true\ if\ the\ button\ was\ clicked}}
+\DoxyCodeLine{01672\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aStatus\ ==\ cvui::CLICK\ ||\ aWasShortcutPressed;}
+\DoxyCodeLine{01673\ \ \ \ \ \}}
+\DoxyCodeLine{01674\ }
+\DoxyCodeLine{01675\ \ \ \ \ \textcolor{keywordtype}{bool}\ button(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel)\ \{}
+\DoxyCodeLine{01676\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ the\ space\ that\ the\ label\ will\ fill}}
+\DoxyCodeLine{01677\ \ \ \ \ \ \ \ \ cv::Size\ aTextSize\ =\ getTextSize(theLabel,\ cv::FONT\_HERSHEY\_SIMPLEX,\ 0.4,\ 1,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01678\ }
+\DoxyCodeLine{01679\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ a\ button\ based\ on\ the\ size\ of\ the\ text}}
+\DoxyCodeLine{01680\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ internal::button(theBlock,\ theX,\ theY,\ aTextSize.width\ +\ 30,\ aTextSize.height\ +\ 18,\ theLabel,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{01681\ \ \ \ \ \}}
+\DoxyCodeLine{01682\ }
+\DoxyCodeLine{01683\ \ \ \ \ \textcolor{keywordtype}{bool}\ button(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theIdle,\ cv::Mat\&\ theOver,\ cv::Mat\&\ theDown,\ \textcolor{keywordtype}{bool}\ theUpdateLayout)\ \{}
+\DoxyCodeLine{01684\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(theX,\ theY,\ theIdle.cols,\ theIdle.rows);}
+\DoxyCodeLine{01685\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aStatus\ =\ cvui::iarea(theX,\ theY,\ aRect.width,\ aRect.height);}
+\DoxyCodeLine{01686\ }
+\DoxyCodeLine{01687\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (aStatus)\ \{}
+\DoxyCodeLine{01688\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ cvui::OUT:\ render::image(theBlock,\ aRect,\ theIdle);\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01689\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ cvui::OVER:\ render::image(theBlock,\ aRect,\ theOver);\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01690\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ cvui::DOWN:\ render::image(theBlock,\ aRect,\ theDown);\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01691\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01692\ }
+\DoxyCodeLine{01693\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow\ according\ to\ button\ size}}
+\DoxyCodeLine{01694\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ we\ were\ told\ to\ update.}}
+\DoxyCodeLine{01695\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theUpdateLayout)\ \{}
+\DoxyCodeLine{01696\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Size\ aSize(aRect.width,\ aRect.height);}
+\DoxyCodeLine{01697\ \ \ \ \ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01698\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01699\ }
+\DoxyCodeLine{01700\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Return\ true\ if\ the\ button\ was\ clicked}}
+\DoxyCodeLine{01701\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aStatus\ ==\ cvui::CLICK;}
+\DoxyCodeLine{01702\ \ \ \ \ \}}
+\DoxyCodeLine{01703\ }
+\DoxyCodeLine{01704\ \ \ \ \ \textcolor{keywordtype}{void}\ image(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theImage)\ \{}
+\DoxyCodeLine{01705\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(theX,\ theY,\ theImage.cols,\ theImage.rows);}
+\DoxyCodeLine{01706\ }
+\DoxyCodeLine{01707\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ check\ for\ render\ outside\ the\ frame\ area}}
+\DoxyCodeLine{01708\ \ \ \ \ \ \ \ \ render::image(theBlock,\ aRect,\ theImage);}
+\DoxyCodeLine{01709\ }
+\DoxyCodeLine{01710\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow\ according\ to\ image\ size}}
+\DoxyCodeLine{01711\ \ \ \ \ \ \ \ \ cv::Size\ aSize(theImage.cols,\ theImage.rows);}
+\DoxyCodeLine{01712\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01713\ \ \ \ \ \}}
+\DoxyCodeLine{01714\ }
+\DoxyCodeLine{01715\ \ \ \ \ \textcolor{keywordtype}{bool}\ checkbox(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ *theState,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{01716\ \ \ \ \ \ \ \ \ cvui\_mouse\_t\&\ aMouse\ =\ internal::getContext().mouse;}
+\DoxyCodeLine{01717\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(theX,\ theY,\ 15,\ 15);}
+\DoxyCodeLine{01718\ \ \ \ \ \ \ \ \ cv::Size\ aTextSize\ =\ getTextSize(theLabel,\ cv::FONT\_HERSHEY\_SIMPLEX,\ 0.4,\ 1,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01719\ \ \ \ \ \ \ \ \ cv::Rect\ aHitArea(theX,\ theY,\ aRect.width\ +\ aTextSize.width\ +\ 6,\ aRect.height);}
+\DoxyCodeLine{01720\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aMouseIsOver\ =\ aHitArea.contains(aMouse.position);}
+\DoxyCodeLine{01721\ }
+\DoxyCodeLine{01722\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aMouseIsOver)\ \{}
+\DoxyCodeLine{01723\ \ \ \ \ \ \ \ \ \ \ \ \ render::checkbox(theBlock,\ cvui::OVER,\ aRect);}
+\DoxyCodeLine{01724\ }
+\DoxyCodeLine{01725\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aMouse.anyButton.justReleased)\ \{}
+\DoxyCodeLine{01726\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *theState\ =\ !(*theState);}
+\DoxyCodeLine{01727\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01728\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01729\ \ \ \ \ \ \ \ \ \ \ \ \ render::checkbox(theBlock,\ cvui::OUT,\ aRect);}
+\DoxyCodeLine{01730\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01731\ }
+\DoxyCodeLine{01732\ \ \ \ \ \ \ \ \ render::checkboxLabel(theBlock,\ aRect,\ theLabel,\ aTextSize,\ theColor);}
+\DoxyCodeLine{01733\ }
+\DoxyCodeLine{01734\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*theState)\ \{}
+\DoxyCodeLine{01735\ \ \ \ \ \ \ \ \ \ \ \ \ render::checkboxCheck(theBlock,\ aRect);}
+\DoxyCodeLine{01736\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01737\ }
+\DoxyCodeLine{01738\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow}}
+\DoxyCodeLine{01739\ \ \ \ \ \ \ \ \ cv::Size\ aSize(aHitArea.width,\ aHitArea.height);}
+\DoxyCodeLine{01740\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01741\ }
+\DoxyCodeLine{01742\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *theState;}
+\DoxyCodeLine{01743\ \ \ \ \ \}}
+\DoxyCodeLine{01744\ }
+\DoxyCodeLine{01745\ \ \ \ \ \textcolor{keywordtype}{void}\ text(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theText,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor,\ \textcolor{keywordtype}{bool}\ theUpdateLayout)\ \{}
+\DoxyCodeLine{01746\ \ \ \ \ \ \ \ \ cv::Size\ aTextSize\ =\ cv::getTextSize(theText,\ cv::FONT\_HERSHEY\_SIMPLEX,\ theFontScale,\ 1,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01747\ \ \ \ \ \ \ \ \ cv::Point\ aPos(theX,\ theY\ +\ aTextSize.height);}
+\DoxyCodeLine{01748\ }
+\DoxyCodeLine{01749\ \ \ \ \ \ \ \ \ render::text(theBlock,\ theText,\ aPos,\ theFontScale,\ theColor);}
+\DoxyCodeLine{01750\ }
+\DoxyCodeLine{01751\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theUpdateLayout)\ \{}
+\DoxyCodeLine{01752\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ an\ extra\ pixel\ to\ the\ height\ to\ overcome\ OpenCV\ font\ size\ problems.}}
+\DoxyCodeLine{01753\ \ \ \ \ \ \ \ \ \ \ \ \ aTextSize.height\ +=\ 1;}
+\DoxyCodeLine{01754\ }
+\DoxyCodeLine{01755\ \ \ \ \ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aTextSize);}
+\DoxyCodeLine{01756\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01757\ \ \ \ \ \}}
+\DoxyCodeLine{01758\ }
+\DoxyCodeLine{01759\ \ \ \ \ \textcolor{keywordtype}{int}\ counter(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ *theValue,\ \textcolor{keywordtype}{int}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat)\ \{}
+\DoxyCodeLine{01760\ \ \ \ \ \ \ \ \ cv::Rect\ aContentArea(theX\ +\ 22,\ theY,\ 48,\ 22);}
+\DoxyCodeLine{01761\ }
+\DoxyCodeLine{01762\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (internal::button(theBlock,\ theX,\ theY,\ 22,\ 22,\ \textcolor{stringliteral}{"{}-\/"{}},\ \textcolor{keyword}{false}))\ \{}
+\DoxyCodeLine{01763\ \ \ \ \ \ \ \ \ \ \ \ \ *theValue\ -\/=\ theStep;}
+\DoxyCodeLine{01764\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01765\ }
+\DoxyCodeLine{01766\ \ \ \ \ \ \ \ \ sprintf\_s(internal::gBuffer,\ theFormat,\ *theValue);}
+\DoxyCodeLine{01767\ \ \ \ \ \ \ \ \ render::counter(theBlock,\ aContentArea,\ internal::gBuffer);}
+\DoxyCodeLine{01768\ }
+\DoxyCodeLine{01769\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (internal::button(theBlock,\ aContentArea.x\ +\ aContentArea.width,\ theY,\ 22,\ 22,\ \textcolor{stringliteral}{"{}+"{}},\ \textcolor{keyword}{false}))\ \{}
+\DoxyCodeLine{01770\ \ \ \ \ \ \ \ \ \ \ \ \ *theValue\ +=\ theStep;}
+\DoxyCodeLine{01771\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01772\ }
+\DoxyCodeLine{01773\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow}}
+\DoxyCodeLine{01774\ \ \ \ \ \ \ \ \ cv::Size\ aSize(22\ *\ 2\ +\ aContentArea.width,\ aContentArea.height);}
+\DoxyCodeLine{01775\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01776\ }
+\DoxyCodeLine{01777\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *theValue;}
+\DoxyCodeLine{01778\ \ \ \ \ \}}
+\DoxyCodeLine{01779\ }
+\DoxyCodeLine{01780\ \ \ \ \ \textcolor{keywordtype}{double}\ counter(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keywordtype}{double}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat)\ \{}
+\DoxyCodeLine{01781\ \ \ \ \ \ \ \ \ cv::Rect\ aContentArea(theX\ +\ 22,\ theY,\ 48,\ 22);}
+\DoxyCodeLine{01782\ }
+\DoxyCodeLine{01783\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (internal::button(theBlock,\ theX,\ theY,\ 22,\ 22,\ \textcolor{stringliteral}{"{}-\/"{}},\ \textcolor{keyword}{false}))\ \{}
+\DoxyCodeLine{01784\ \ \ \ \ \ \ \ \ \ \ \ \ *theValue\ -\/=\ theStep;}
+\DoxyCodeLine{01785\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01786\ }
+\DoxyCodeLine{01787\ \ \ \ \ \ \ \ \ sprintf\_s(internal::gBuffer,\ theFormat,\ *theValue);}
+\DoxyCodeLine{01788\ \ \ \ \ \ \ \ \ render::counter(theBlock,\ aContentArea,\ internal::gBuffer);}
+\DoxyCodeLine{01789\ }
+\DoxyCodeLine{01790\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (internal::button(theBlock,\ aContentArea.x\ +\ aContentArea.width,\ theY,\ 22,\ 22,\ \textcolor{stringliteral}{"{}+"{}},\ \textcolor{keyword}{false}))\ \{}
+\DoxyCodeLine{01791\ \ \ \ \ \ \ \ \ \ \ \ \ *theValue\ +=\ theStep;}
+\DoxyCodeLine{01792\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01793\ }
+\DoxyCodeLine{01794\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow}}
+\DoxyCodeLine{01795\ \ \ \ \ \ \ \ \ cv::Size\ aSize(22\ *\ 2\ +\ aContentArea.width,\ aContentArea.height);}
+\DoxyCodeLine{01796\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01797\ }
+\DoxyCodeLine{01798\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *theValue;}
+\DoxyCodeLine{01799\ \ \ \ \ \}}
+\DoxyCodeLine{01800\ }
+\DoxyCodeLine{01801\ \ \ \ \ \textcolor{keywordtype}{bool}\ trackbar(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keyword}{const}\ TrackbarParams\ \&\ theParams)\ \{}
+\DoxyCodeLine{01802\ \ \ \ \ \ \ \ \ cvui\_mouse\_t\&\ aMouse\ =\ internal::getContext().mouse;}
+\DoxyCodeLine{01803\ \ \ \ \ \ \ \ \ cv::Rect\ aContentArea(theX,\ theY,\ theWidth,\ 45);}
+\DoxyCodeLine{01804\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aValue\ =\ *theValue;}
+\DoxyCodeLine{01805\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aMouseIsOver\ =\ aContentArea.contains(aMouse.position);}
+\DoxyCodeLine{01806\ }
+\DoxyCodeLine{01807\ \ \ \ \ \ \ \ \ render::trackbar(theBlock,\ aMouseIsOver\ ?\ OVER\ :\ OUT,\ aContentArea,\ *theValue,\ theParams);}
+\DoxyCodeLine{01808\ }
+\DoxyCodeLine{01809\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aMouse.anyButton.pressed\ \&\&\ aMouseIsOver)\ \{}
+\DoxyCodeLine{01810\ \ \ \ \ \ \ \ \ \ \ \ \ *theValue\ =\ internal::trackbarXPixelToValue(theParams,\ aContentArea,\ aMouse.position.x);}
+\DoxyCodeLine{01811\ }
+\DoxyCodeLine{01812\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bitsetHas(theParams.options,\ TRACKBAR\_DISCRETE))\ \{}
+\DoxyCodeLine{01813\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ internal::trackbarForceValuesAsMultiplesOfSmallStep(theParams,\ theValue);}
+\DoxyCodeLine{01814\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01815\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01816\ }
+\DoxyCodeLine{01817\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow}}
+\DoxyCodeLine{01818\ \ \ \ \ \ \ \ \ cv::Size\ aSize\ =\ aContentArea.size();}
+\DoxyCodeLine{01819\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01820\ }
+\DoxyCodeLine{01821\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (*theValue\ !=\ aValue);}
+\DoxyCodeLine{01822\ \ \ \ \ \}}
+\DoxyCodeLine{01823\ }
+\DoxyCodeLine{01824\ }
+\DoxyCodeLine{01825\ \ \ \ \ \textcolor{keywordtype}{void}\ window(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle)\ \{}
+\DoxyCodeLine{01826\ \ \ \ \ \ \ \ \ cv::Rect\ aTitleBar(theX,\ theY,\ theWidth,\ 20);}
+\DoxyCodeLine{01827\ \ \ \ \ \ \ \ \ cv::Rect\ aContent(theX,\ theY\ +\ aTitleBar.height,\ theWidth,\ theHeight\ -\/\ aTitleBar.height);}
+\DoxyCodeLine{01828\ }
+\DoxyCodeLine{01829\ \ \ \ \ \ \ \ \ render::window(theBlock,\ aTitleBar,\ aContent,\ theTitle);}
+\DoxyCodeLine{01830\ }
+\DoxyCodeLine{01831\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow}}
+\DoxyCodeLine{01832\ \ \ \ \ \ \ \ \ cv::Size\ aSize(theWidth,\ theHeight);}
+\DoxyCodeLine{01833\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01834\ \ \ \ \ \}}
+\DoxyCodeLine{01835\ }
+\DoxyCodeLine{01836\ \ \ \ \ \textcolor{keywordtype}{void}\ rect(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor)\ \{}
+\DoxyCodeLine{01837\ \ \ \ \ \ \ \ \ cv::Point\ aAnchor(theX,\ theY);}
+\DoxyCodeLine{01838\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(theX,\ theY,\ theWidth,\ theHeight);}
+\DoxyCodeLine{01839\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01840\ \ \ \ \ \ \ \ \ aRect.x\ =\ aRect.width\ <\ 0\ ?\ aAnchor.x\ +\ aRect.width\ :\ aAnchor.x;}
+\DoxyCodeLine{01841\ \ \ \ \ \ \ \ \ aRect.y\ =\ aRect.height\ <\ 0\ ?\ aAnchor.y\ +\ aRect.height\ :\ aAnchor.y;}
+\DoxyCodeLine{01842\ \ \ \ \ \ \ \ \ aRect.width\ =\ std::abs(aRect.width);}
+\DoxyCodeLine{01843\ \ \ \ \ \ \ \ \ aRect.height\ =\ std::abs(aRect.height);}
+\DoxyCodeLine{01844\ }
+\DoxyCodeLine{01845\ \ \ \ \ \ \ \ \ render::rect(theBlock,\ aRect,\ theBorderColor,\ theFillingColor);}
+\DoxyCodeLine{01846\ }
+\DoxyCodeLine{01847\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow}}
+\DoxyCodeLine{01848\ \ \ \ \ \ \ \ \ cv::Size\ aSize(aRect.width,\ aRect.height);}
+\DoxyCodeLine{01849\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01850\ \ \ \ \ \}}
+\DoxyCodeLine{01851\ }
+\DoxyCodeLine{01852\ \ \ \ \ \textcolor{keywordtype}{void}\ sparkline(cvui\_block\_t\&\ theBlock,\ std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{01853\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ aMin,\ aMax;}
+\DoxyCodeLine{01854\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(theX,\ theY,\ theWidth,\ theHeight);}
+\DoxyCodeLine{01855\ \ \ \ \ \ \ \ \ std::vector<double>::size\_type\ aHowManyValues\ =\ theValues.size();}
+\DoxyCodeLine{01856\ }
+\DoxyCodeLine{01857\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aHowManyValues\ >=\ 2)\ \{}
+\DoxyCodeLine{01858\ \ \ \ \ \ \ \ \ \ \ \ \ internal::findMinMax(theValues,\ \&aMin,\ \&aMax);}
+\DoxyCodeLine{01859\ \ \ \ \ \ \ \ \ \ \ \ \ render::sparkline(theBlock,\ theValues,\ aRect,\ aMin,\ aMax,\ theColor);}
+\DoxyCodeLine{01860\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01861\ \ \ \ \ \ \ \ \ \ \ \ \ internal::text(theBlock,\ theX,\ theY,\ aHowManyValues\ ==\ 0\ ?\ \textcolor{stringliteral}{"{}No\ data."{}}\ :\ \textcolor{stringliteral}{"{}Insufficient\ data\ points."{}},\ 0.4,\ 0xCECECE,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{01862\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01863\ }
+\DoxyCodeLine{01864\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ the\ layout\ flow}}
+\DoxyCodeLine{01865\ \ \ \ \ \ \ \ \ cv::Size\ aSize(theWidth,\ theHeight);}
+\DoxyCodeLine{01866\ \ \ \ \ \ \ \ \ updateLayoutFlow(theBlock,\ aSize);}
+\DoxyCodeLine{01867\ \ \ \ \ \}}
+\DoxyCodeLine{01868\ \}\ \textcolor{comment}{//\ namespace\ internal}}
+\DoxyCodeLine{01869\ }
+\DoxyCodeLine{01870\ \textcolor{comment}{//\ This\ is\ an\ internal\ namespace\ with\ all\ functions}}
+\DoxyCodeLine{01871\ \textcolor{comment}{//\ that\ actually\ render\ each\ one\ of\ the\ UI\ components}}
+\DoxyCodeLine{01872\ \textcolor{keyword}{namespace\ }render}
+\DoxyCodeLine{01873\ \{}
+\DoxyCodeLine{01874\ \ \ \ \ \textcolor{keywordtype}{void}\ text(cvui\_block\_t\&\ theBlock,\ \textcolor{keyword}{const}\ cv::String\&\ theText,\ cv::Point\&\ thePos,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{01875\ \ \ \ \ \ \ \ \ cv::putText(theBlock.where,\ theText,\ thePos,\ cv::FONT\_HERSHEY\_SIMPLEX,\ theFontScale,\ internal::hexToScalar(theColor),\ 1,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{01876\ \ \ \ \ \}}
+\DoxyCodeLine{01877\ }
+\DoxyCodeLine{01878\ \ \ \ \ \textcolor{keywordtype}{void}\ button(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel)\ \{}
+\DoxyCodeLine{01879\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Outline}}
+\DoxyCodeLine{01880\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ cv::Scalar(0x29,\ 0x29,\ 0x29));}
+\DoxyCodeLine{01881\ }
+\DoxyCodeLine{01882\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Border}}
+\DoxyCodeLine{01883\ \ \ \ \ \ \ \ \ theShape.x++;\ theShape.y++;\ theShape.width\ -\/=\ 2;\ theShape.height\ -\/=\ 2;}
+\DoxyCodeLine{01884\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ cv::Scalar(0x4A,\ 0x4A,\ 0x4A));}
+\DoxyCodeLine{01885\ }
+\DoxyCodeLine{01886\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Inside}}
+\DoxyCodeLine{01887\ \ \ \ \ \ \ \ \ theShape.x++;\ theShape.y++;\ theShape.width\ -\/=\ 2;\ theShape.height\ -\/=\ 2;}
+\DoxyCodeLine{01888\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ theState\ ==\ OUT\ ?\ cv::Scalar(0x42,\ 0x42,\ 0x42)\ :\ (theState\ ==\ OVER\ ?\ cv::Scalar(0x52,\ 0x52,\ 0x52)\ :\ cv::Scalar(0x32,\ 0x32,\ 0x32)),\ CVUI\_FILLED);}
+\DoxyCodeLine{01889\ \ \ \ \ \}}
+\DoxyCodeLine{01890\ }
+\DoxyCodeLine{01891\ \ \ \ \ \textcolor{keywordtype}{int}\ putText(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Scalar\ aColor,\ \textcolor{keyword}{const}\ std::string\&\ theText,\ \textcolor{keyword}{const}\ cv::Point\ \&\ thePosition)\ \{}
+\DoxyCodeLine{01892\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ aFontSize\ =\ theState\ ==\ cvui::DOWN\ ?\ 0.39\ :\ 0.4;}
+\DoxyCodeLine{01893\ \ \ \ \ \ \ \ \ cv::Size\ aSize;}
+\DoxyCodeLine{01894\ }
+\DoxyCodeLine{01895\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theText\ !=\ \textcolor{stringliteral}{"{}"{}})\ \{}
+\DoxyCodeLine{01896\ \ \ \ \ \ \ \ \ \ \ \ \ cv::putText(theBlock.where,\ theText,\ thePosition,\ cv::FONT\_HERSHEY\_SIMPLEX,\ aFontSize,\ aColor,\ 1,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{01897\ \ \ \ \ \ \ \ \ \ \ \ \ aSize\ =\ cv::getTextSize(theText,\ cv::FONT\_HERSHEY\_SIMPLEX,\ aFontSize,\ 1,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01898\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01899\ }
+\DoxyCodeLine{01900\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ aSize.width;}
+\DoxyCodeLine{01901\ \ \ \ \ \}}
+\DoxyCodeLine{01902\ }
+\DoxyCodeLine{01903\ \ \ \ \ \textcolor{keywordtype}{int}\ putTextCentered(cvui\_block\_t\&\ theBlock,\ \textcolor{keyword}{const}\ cv::Point\ \&\ position,\ \textcolor{keyword}{const}\ std::string\ \&text)\ \{}
+\DoxyCodeLine{01904\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ aFontScale\ =\ 0.3;}
+\DoxyCodeLine{01905\ }
+\DoxyCodeLine{01906\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ size\ =\ cv::getTextSize(text,\ cv::FONT\_HERSHEY\_SIMPLEX,\ aFontScale,\ 1,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01907\ \ \ \ \ \ \ \ \ cv::Point\ positionDecentered(position.x\ -\/\ size.width\ /\ 2,\ position.y);}
+\DoxyCodeLine{01908\ \ \ \ \ \ \ \ \ cv::putText(theBlock.where,\ text,\ positionDecentered,\ cv::FONT\_HERSHEY\_SIMPLEX,\ aFontScale,\ cv::Scalar(0xCE,\ 0xCE,\ 0xCE),\ 1,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{01909\ }
+\DoxyCodeLine{01910\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ size.width;}
+\DoxyCodeLine{01911\ \ \ \ \ \};}
+\DoxyCodeLine{01912\ }
+\DoxyCodeLine{01913\ \ \ \ \ \textcolor{keywordtype}{void}\ buttonLabel(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\ theRect,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ cv::Size\&\ theTextSize)\ \{}
+\DoxyCodeLine{01914\ \ \ \ \ \ \ \ \ cv::Point\ aPos(theRect.x\ +\ theRect.width\ /\ 2\ -\/\ theTextSize.width\ /\ 2,\ theRect.y\ +\ theRect.height\ /\ 2\ +\ theTextSize.height\ /\ 2);}
+\DoxyCodeLine{01915\ \ \ \ \ \ \ \ \ cv::Scalar\ aColor\ =\ cv::Scalar(0xCE,\ 0xCE,\ 0xCE);}
+\DoxyCodeLine{01916\ }
+\DoxyCodeLine{01917\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ aLabel\ =\ internal::createLabel(theLabel);}
+\DoxyCodeLine{01918\ }
+\DoxyCodeLine{01919\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!aLabel.hasShortcut)\ \{}
+\DoxyCodeLine{01920\ \ \ \ \ \ \ \ \ \ \ \ \ putText(theBlock,\ theState,\ aColor,\ theLabel,\ aPos);}
+\DoxyCodeLine{01921\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01922\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01923\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aWidth\ =\ putText(theBlock,\ theState,\ aColor,\ aLabel.textBeforeShortcut,\ aPos);}
+\DoxyCodeLine{01924\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aStart\ =\ aPos.x\ +\ aWidth;}
+\DoxyCodeLine{01925\ \ \ \ \ \ \ \ \ \ \ \ \ aPos.x\ +=\ aWidth;}
+\DoxyCodeLine{01926\ }
+\DoxyCodeLine{01927\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ aShortcut;}
+\DoxyCodeLine{01928\ \ \ \ \ \ \ \ \ \ \ \ \ aShortcut.push\_back(aLabel.shortcut);}
+\DoxyCodeLine{01929\ }
+\DoxyCodeLine{01930\ \ \ \ \ \ \ \ \ \ \ \ \ aWidth\ =\ putText(theBlock,\ theState,\ aColor,\ aShortcut,\ aPos);}
+\DoxyCodeLine{01931\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aEnd\ =\ aStart\ +\ aWidth;}
+\DoxyCodeLine{01932\ \ \ \ \ \ \ \ \ \ \ \ \ aPos.x\ +=\ aWidth;}
+\DoxyCodeLine{01933\ }
+\DoxyCodeLine{01934\ \ \ \ \ \ \ \ \ \ \ \ \ putText(theBlock,\ theState,\ aColor,\ aLabel.textAfterShortcut,\ aPos);}
+\DoxyCodeLine{01935\ \ \ \ \ \ \ \ \ \ \ \ \ cv::line(theBlock.where,\ cv::Point(aStart,\ aPos.y\ +\ 3),\ cv::Point(aEnd,\ aPos.y\ +\ 3),\ aColor,\ 1,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{01936\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01937\ \ \ \ \ \}}
+\DoxyCodeLine{01938\ }
+\DoxyCodeLine{01939\ \ \ \ \ \textcolor{keywordtype}{void}\ image(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theRect,\ cv::Mat\&\ theImage)\ \{}
+\DoxyCodeLine{01940\ \ \ \ \ \ \ \ \ theImage.copyTo(theBlock.where(theRect));}
+\DoxyCodeLine{01941\ \ \ \ \ \}}
+\DoxyCodeLine{01942\ }
+\DoxyCodeLine{01943\ \ \ \ \ \textcolor{keywordtype}{void}\ counter(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theShape,\ \textcolor{keyword}{const}\ cv::String\&\ theValue)\ \{}
+\DoxyCodeLine{01944\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ cv::Scalar(0x29,\ 0x29,\ 0x29),\ CVUI\_FILLED);\ \textcolor{comment}{//\ fill}}
+\DoxyCodeLine{01945\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ cv::Scalar(0x45,\ 0x45,\ 0x45));\ \textcolor{comment}{//\ border}}
+\DoxyCodeLine{01946\ }
+\DoxyCodeLine{01947\ \ \ \ \ \ \ \ \ cv::Size\ aTextSize\ =\ getTextSize(theValue,\ cv::FONT\_HERSHEY\_SIMPLEX,\ 0.4,\ 1,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{01948\ }
+\DoxyCodeLine{01949\ \ \ \ \ \ \ \ \ cv::Point\ aPos(theShape.x\ +\ theShape.width\ /\ 2\ -\/\ aTextSize.width\ /\ 2,\ theShape.y\ +\ aTextSize.height\ /\ 2\ +\ theShape.height\ /\ 2);}
+\DoxyCodeLine{01950\ \ \ \ \ \ \ \ \ cv::putText(theBlock.where,\ theValue,\ aPos,\ cv::FONT\_HERSHEY\_SIMPLEX,\ 0.4,\ cv::Scalar(0xCE,\ 0xCE,\ 0xCE),\ 1,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{01951\ \ \ \ \ \}}
+\DoxyCodeLine{01952\ }
+\DoxyCodeLine{01953\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarHandle(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea)\ \{}
+\DoxyCodeLine{01954\ \ \ \ \ \ \ \ \ cv::Point\ aBarTopLeft(theWorkingArea.x,\ theWorkingArea.y\ +\ theWorkingArea.height\ /\ 2);}
+\DoxyCodeLine{01955\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aBarHeight\ =\ 7;}
+\DoxyCodeLine{01956\ }
+\DoxyCodeLine{01957\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Draw\ the\ rectangle\ representing\ the\ handle}}
+\DoxyCodeLine{01958\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aPixelX\ =\ internal::trackbarValueToXPixel(theParams,\ theShape,\ theValue);}
+\DoxyCodeLine{01959\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aIndicatorWidth\ =\ 3;}
+\DoxyCodeLine{01960\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aIndicatorHeight\ =\ 4;}
+\DoxyCodeLine{01961\ \ \ \ \ \ \ \ \ cv::Point\ aPoint1(aPixelX\ -\/\ aIndicatorWidth,\ aBarTopLeft.y\ -\/\ aIndicatorHeight);}
+\DoxyCodeLine{01962\ \ \ \ \ \ \ \ \ cv::Point\ aPoint2(aPixelX\ +\ aIndicatorWidth,\ aBarTopLeft.y\ +\ aBarHeight\ +\ aIndicatorHeight);}
+\DoxyCodeLine{01963\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(aPoint1,\ aPoint2);}
+\DoxyCodeLine{01964\ }
+\DoxyCodeLine{01965\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aFillColor\ =\ theState\ ==\ OVER\ ?\ 0x525252\ :\ 0x424242;}
+\DoxyCodeLine{01966\ }
+\DoxyCodeLine{01967\ \ \ \ \ \ \ \ \ rect(theBlock,\ aRect,\ 0x212121,\ 0x212121);}
+\DoxyCodeLine{01968\ \ \ \ \ \ \ \ \ aRect.x\ +=\ 1;\ aRect.y\ +=\ 1;\ aRect.width\ -\/=\ 2;\ aRect.height\ -\/=\ 2;}
+\DoxyCodeLine{01969\ \ \ \ \ \ \ \ \ rect(theBlock,\ aRect,\ 0x515151,\ aFillColor);}
+\DoxyCodeLine{01970\ }
+\DoxyCodeLine{01971\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aShowLabel\ =\ internal::bitsetHas(theParams.options,\ cvui::TRACKBAR\_HIDE\_VALUE\_LABEL)\ ==\ \textcolor{keyword}{false};}
+\DoxyCodeLine{01972\ }
+\DoxyCodeLine{01973\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Draw\ the\ handle\ label}}
+\DoxyCodeLine{01974\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aShowLabel)\ \{}
+\DoxyCodeLine{01975\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Point\ aTextPos(aPixelX,\ aPoint2.y\ +\ 11);}
+\DoxyCodeLine{01976\ \ \ \ \ \ \ \ \ \ \ \ \ sprintf\_s(internal::gBuffer,\ theParams.labelFormat.c\_str(),\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\textcolor{keyword}{>}(theValue));}
+\DoxyCodeLine{01977\ \ \ \ \ \ \ \ \ \ \ \ \ putTextCentered(theBlock,\ aTextPos,\ internal::gBuffer);}
+\DoxyCodeLine{01978\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01979\ \ \ \ \ \}}
+\DoxyCodeLine{01980\ }
+\DoxyCodeLine{01981\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarPath(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea)\ \{}
+\DoxyCodeLine{01982\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aBarHeight\ =\ 7;}
+\DoxyCodeLine{01983\ \ \ \ \ \ \ \ \ cv::Point\ aBarTopLeft(theWorkingArea.x,\ theWorkingArea.y\ +\ theWorkingArea.height\ /\ 2);}
+\DoxyCodeLine{01984\ \ \ \ \ \ \ \ \ cv::Rect\ aRect(aBarTopLeft,\ cv::Size(theWorkingArea.width,\ aBarHeight));}
+\DoxyCodeLine{01985\ }
+\DoxyCodeLine{01986\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aBorderColor\ =\ theState\ ==\ OVER\ ?\ 0x4e4e4e\ :\ 0x3e3e3e;}
+\DoxyCodeLine{01987\ }
+\DoxyCodeLine{01988\ \ \ \ \ \ \ \ \ rect(theBlock,\ aRect,\ aBorderColor,\ 0x292929);}
+\DoxyCodeLine{01989\ \ \ \ \ \ \ \ \ cv::line(theBlock.where,\ cv::Point(aRect.x\ +\ 1,\ aRect.y\ +\ aBarHeight\ -\/\ 2),\ cv::Point(aRect.x\ +\ aRect.width\ -\/\ 2,\ aRect.y\ +\ aBarHeight\ -\/\ 2),\ cv::Scalar(0x0e,\ 0x0e,\ 0x0e));}
+\DoxyCodeLine{01990\ \ \ \ \ \}}
+\DoxyCodeLine{01991\ }
+\DoxyCodeLine{01992\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarSteps(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea)\ \{}
+\DoxyCodeLine{01993\ \ \ \ \ \ \ \ \ cv::Point\ aBarTopLeft(theWorkingArea.x,\ theWorkingArea.y\ +\ theWorkingArea.height\ /\ 2);}
+\DoxyCodeLine{01994\ \ \ \ \ \ \ \ \ cv::Scalar\ aColor(0x51,\ 0x51,\ 0x51);}
+\DoxyCodeLine{01995\ }
+\DoxyCodeLine{01996\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aDiscrete\ =\ internal::bitsetHas(theParams.options,\ cvui::TRACKBAR\_DISCRETE);}
+\DoxyCodeLine{01997\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aFixedStep\ =\ aDiscrete\ ?\ theParams.step\ :\ (theParams.max\ -\/\ theParams.min)\ /\ 20;}
+\DoxyCodeLine{01998\ }
+\DoxyCodeLine{01999\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ check\ min,\ max\ and\ step\ to\ prevent\ infinite\ loop.}}
+\DoxyCodeLine{02000\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aValue\ =\ theParams.min;\ aValue\ <=\ theParams.max;\ aValue\ +=\ aFixedStep)\ \{}
+\DoxyCodeLine{02001\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aPixelX\ =\ internal::trackbarValueToXPixel(theParams,\ theShape,\ aValue);}
+\DoxyCodeLine{02002\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Point\ aPoint1(aPixelX,\ aBarTopLeft.y);}
+\DoxyCodeLine{02003\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Point\ aPoint2(aPixelX,\ aBarTopLeft.y\ -\/\ 3);}
+\DoxyCodeLine{02004\ \ \ \ \ \ \ \ \ \ \ \ \ cv::line(theBlock.where,\ aPoint1,\ aPoint2,\ aColor);}
+\DoxyCodeLine{02005\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02006\ \ \ \ \ \}}
+\DoxyCodeLine{02007\ }
+\DoxyCodeLine{02008\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarSegmentLabel(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theShape,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ theValue,\ cv::Rect\&\ theWorkingArea,\ \textcolor{keywordtype}{bool}\ theShowLabel)\ \{}
+\DoxyCodeLine{02009\ \ \ \ \ \ \ \ \ cv::Scalar\ aColor(0x51,\ 0x51,\ 0x51);}
+\DoxyCodeLine{02010\ \ \ \ \ \ \ \ \ cv::Point\ aBarTopLeft(theWorkingArea.x,\ theWorkingArea.y\ +\ theWorkingArea.height\ /\ 2);}
+\DoxyCodeLine{02011\ }
+\DoxyCodeLine{02012\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aPixelX\ =\ internal::trackbarValueToXPixel(theParams,\ theShape,\ theValue);}
+\DoxyCodeLine{02013\ }
+\DoxyCodeLine{02014\ \ \ \ \ \ \ \ \ cv::Point\ aPoint1(aPixelX,\ aBarTopLeft.y);}
+\DoxyCodeLine{02015\ \ \ \ \ \ \ \ \ cv::Point\ aPoint2(aPixelX,\ aBarTopLeft.y\ -\/\ 8);}
+\DoxyCodeLine{02016\ \ \ \ \ \ \ \ \ cv::line(theBlock.where,\ aPoint1,\ aPoint2,\ aColor);}
+\DoxyCodeLine{02017\ }
+\DoxyCodeLine{02018\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theShowLabel)}
+\DoxyCodeLine{02019\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{02020\ \ \ \ \ \ \ \ \ \ \ \ \ sprintf\_s(internal::gBuffer,\ theParams.labelFormat.c\_str(),\ theValue);}
+\DoxyCodeLine{02021\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Point\ aTextPos(aPixelX,\ aBarTopLeft.y\ -\/\ 11);}
+\DoxyCodeLine{02022\ \ \ \ \ \ \ \ \ \ \ \ \ putTextCentered(theBlock,\ aTextPos,\ internal::gBuffer);}
+\DoxyCodeLine{02023\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02024\ \ \ \}}
+\DoxyCodeLine{02025\ }
+\DoxyCodeLine{02026\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbarSegments(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams,\ cv::Rect\&\ theWorkingArea)\ \{}
+\DoxyCodeLine{02027\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aSegments\ =\ theParams.segments\ <\ 1\ ?\ 1\ :\ theParams.segments;}
+\DoxyCodeLine{02028\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aSegmentLength\ =\ (\textcolor{keywordtype}{long}\ double)(theParams.max\ -\/\ theParams.min)\ /\ (\textcolor{keywordtype}{long}\ double)aSegments;}
+\DoxyCodeLine{02029\ }
+\DoxyCodeLine{02030\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aHasMinMaxLabels\ =\ internal::bitsetHas(theParams.options,\ TRACKBAR\_HIDE\_MIN\_MAX\_LABELS)\ ==\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02031\ }
+\DoxyCodeLine{02032\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Render\ the\ min\ value\ label}}
+\DoxyCodeLine{02033\ \ \ \ \ \ \ \ \ trackbarSegmentLabel(theBlock,\ theShape,\ theParams,\ theParams.min,\ theWorkingArea,\ aHasMinMaxLabels);}
+\DoxyCodeLine{02034\ }
+\DoxyCodeLine{02035\ \ \ \ \ \ \ \ \ \textcolor{comment}{//Draw\ large\ steps\ and\ labels}}
+\DoxyCodeLine{02036\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aHasSegmentLabels\ =\ internal::bitsetHas(theParams.options,\ TRACKBAR\_HIDE\_SEGMENT\_LABELS)\ ==\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02037\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ check\ min,\ max\ and\ step\ to\ prevent\ infinite\ loop.}}
+\DoxyCodeLine{02038\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\ aValue\ =\ theParams.min;\ aValue\ <=\ theParams.max;\ aValue\ +=\ aSegmentLength)\ \{}
+\DoxyCodeLine{02039\ \ \ \ \ \ \ \ \ \ \ \ \ trackbarSegmentLabel(theBlock,\ theShape,\ theParams,\ aValue,\ theWorkingArea,\ aHasSegmentLabels);}
+\DoxyCodeLine{02040\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02041\ }
+\DoxyCodeLine{02042\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Render\ the\ max\ value\ label}}
+\DoxyCodeLine{02043\ \ \ \ \ \ \ \ \ trackbarSegmentLabel(theBlock,\ theShape,\ theParams,\ theParams.max,\ theWorkingArea,\ aHasMinMaxLabels);}
+\DoxyCodeLine{02044\ \ \ \ \ \}}
+\DoxyCodeLine{02045\ }
+\DoxyCodeLine{02046\ \ \ \ \ \textcolor{keywordtype}{void}\ trackbar(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape,\ \textcolor{keywordtype}{double}\ theValue,\ \textcolor{keyword}{const}\ internal::TrackbarParams\ \&theParams)\ \{}
+\DoxyCodeLine{02047\ \ \ \ \ \ \ \ \ cv::Rect\ aWorkingArea(theShape.x\ +\ internal::gTrackbarMarginX,\ theShape.y,\ theShape.width\ -\/\ 2\ *\ internal::gTrackbarMarginX,\ theShape.height);}
+\DoxyCodeLine{02048\ }
+\DoxyCodeLine{02049\ \ \ \ \ \ \ \ \ trackbarPath(theBlock,\ theState,\ theShape,\ theValue,\ theParams,\ aWorkingArea);}
+\DoxyCodeLine{02050\ }
+\DoxyCodeLine{02051\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aHideAllLabels\ =\ internal::bitsetHas(theParams.options,\ cvui::TRACKBAR\_HIDE\_LABELS);}
+\DoxyCodeLine{02052\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aShowSteps\ =\ internal::bitsetHas(theParams.options,\ cvui::TRACKBAR\_HIDE\_STEP\_SCALE)\ ==\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02053\ }
+\DoxyCodeLine{02054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aShowSteps\ \&\&\ !aHideAllLabels)\ \{}
+\DoxyCodeLine{02055\ \ \ \ \ \ \ \ \ \ \ \ \ trackbarSteps(theBlock,\ theState,\ theShape,\ theValue,\ theParams,\ aWorkingArea);}
+\DoxyCodeLine{02056\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02057\ }
+\DoxyCodeLine{02058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!aHideAllLabels)\ \{}
+\DoxyCodeLine{02059\ \ \ \ \ \ \ \ \ \ \ \ \ trackbarSegments(theBlock,\ theState,\ theShape,\ theValue,\ theParams,\ aWorkingArea);}
+\DoxyCodeLine{02060\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02061\ }
+\DoxyCodeLine{02062\ \ \ \ \ \ \ \ \ trackbarHandle(theBlock,\ theState,\ theShape,\ theValue,\ theParams,\ aWorkingArea);}
+\DoxyCodeLine{02063\ \ \ \ \ \}}
+\DoxyCodeLine{02064\ }
+\DoxyCodeLine{02065\ \ \ \ \ \textcolor{keywordtype}{void}\ checkbox(cvui\_block\_t\&\ theBlock,\ \textcolor{keywordtype}{int}\ theState,\ cv::Rect\&\ theShape)\ \{}
+\DoxyCodeLine{02066\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Outline}}
+\DoxyCodeLine{02067\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ theState\ ==\ OUT\ ?\ cv::Scalar(0x63,\ 0x63,\ 0x63)\ :\ cv::Scalar(0x80,\ 0x80,\ 0x80));}
+\DoxyCodeLine{02068\ }
+\DoxyCodeLine{02069\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Border}}
+\DoxyCodeLine{02070\ \ \ \ \ \ \ \ \ theShape.x++;\ theShape.y++;\ theShape.width\ -\/=\ 2;\ theShape.height\ -\/=\ 2;}
+\DoxyCodeLine{02071\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ cv::Scalar(0x17,\ 0x17,\ 0x17));}
+\DoxyCodeLine{02072\ }
+\DoxyCodeLine{02073\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Inside}}
+\DoxyCodeLine{02074\ \ \ \ \ \ \ \ \ theShape.x++;\ theShape.y++;\ theShape.width\ -\/=\ 2;\ theShape.height\ -\/=\ 2;}
+\DoxyCodeLine{02075\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ cv::Scalar(0x29,\ 0x29,\ 0x29),\ CVUI\_FILLED);}
+\DoxyCodeLine{02076\ \ \ \ \ \}}
+\DoxyCodeLine{02077\ }
+\DoxyCodeLine{02078\ \ \ \ \ \textcolor{keywordtype}{void}\ checkboxLabel(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theRect,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ cv::Size\&\ theTextSize,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02079\ \ \ \ \ \ \ \ \ cv::Point\ aPos(theRect.x\ +\ theRect.width\ +\ 6,\ theRect.y\ +\ theTextSize.height\ +\ theRect.height\ /\ 2\ -\/\ theTextSize.height\ /\ 2\ -\/\ 1);}
+\DoxyCodeLine{02080\ \ \ \ \ \ \ \ \ text(theBlock,\ theLabel,\ aPos,\ 0.4,\ theColor);}
+\DoxyCodeLine{02081\ \ \ \ \ \}}
+\DoxyCodeLine{02082\ }
+\DoxyCodeLine{02083\ \ \ \ \ \textcolor{keywordtype}{void}\ checkboxCheck(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theShape)\ \{}
+\DoxyCodeLine{02084\ \ \ \ \ \ \ \ \ theShape.x++;\ theShape.y++;\ theShape.width\ -\/=\ 2;\ theShape.height\ -\/=\ 2;}
+\DoxyCodeLine{02085\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theShape,\ cv::Scalar(0xFF,\ 0xBF,\ 0x75),\ CVUI\_FILLED);}
+\DoxyCodeLine{02086\ \ \ \ \ \}}
+\DoxyCodeLine{02087\ }
+\DoxyCodeLine{02088\ \ \ \ \ \textcolor{keywordtype}{void}\ window(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ theTitleBar,\ cv::Rect\&\ theContent,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle)\ \{}
+\DoxyCodeLine{02089\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aTransparecy\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02090\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ aAlpha\ =\ 0.3;}
+\DoxyCodeLine{02091\ \ \ \ \ \ \ \ \ cv::Mat\ aOverlay\ =\ cv::Mat(theBlock.where.size(),\ theBlock.where.type());}
+\DoxyCodeLine{02092\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{02093\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Render\ the\ title\ bar.}}
+\DoxyCodeLine{02094\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ First\ the\ border}}
+\DoxyCodeLine{02095\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theTitleBar,\ cv::Scalar(0x4A,\ 0x4A,\ 0x4A));}
+\DoxyCodeLine{02096\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ then\ the\ inside}}
+\DoxyCodeLine{02097\ \ \ \ \ \ \ \ \ theTitleBar.x++;\ theTitleBar.y++;\ theTitleBar.width\ -\/=\ 2;\ theTitleBar.height\ -\/=\ 2;}
+\DoxyCodeLine{02098\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theTitleBar,\ cv::Scalar(0x21,\ 0x21,\ 0x21),\ CVUI\_FILLED);}
+\DoxyCodeLine{02099\ }
+\DoxyCodeLine{02100\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Render\ title\ text.}}
+\DoxyCodeLine{02101\ \ \ \ \ \ \ \ \ cv::Point\ aPos(theTitleBar.x\ +\ 5,\ theTitleBar.y\ +\ 12);}
+\DoxyCodeLine{02102\ \ \ \ \ \ \ \ \ cv::putText(theBlock.where,\ theTitle,\ aPos,\ cv::FONT\_HERSHEY\_SIMPLEX,\ 0.4,\ cv::Scalar(0xCE,\ 0xCE,\ 0xCE),\ 1,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{02103\ }
+\DoxyCodeLine{02104\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Render\ the\ body.}}
+\DoxyCodeLine{02105\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ First\ the\ border.}}
+\DoxyCodeLine{02106\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theContent,\ cv::Scalar(0x4A,\ 0x4A,\ 0x4A));}
+\DoxyCodeLine{02107\ }
+\DoxyCodeLine{02108\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Then\ the\ filling.}}
+\DoxyCodeLine{02109\ \ \ \ \ \ \ \ \ theContent.x++;\ theContent.y++;\ theContent.width\ -\/=\ 2;\ theContent.height\ -\/=\ 2;}
+\DoxyCodeLine{02110\ \ \ \ \ \ \ \ \ cv::rectangle(aOverlay,\ theContent,\ cv::Scalar(0x31,\ 0x31,\ 0x31),\ CVUI\_FILLED);}
+\DoxyCodeLine{02111\ }
+\DoxyCodeLine{02112\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aTransparecy)\ \{}
+\DoxyCodeLine{02113\ \ \ \ \ \ \ \ \ \ \ \ \ theBlock.where.copyTo(aOverlay);}
+\DoxyCodeLine{02114\ \ \ \ \ \ \ \ \ \ \ \ \ cv::rectangle(aOverlay,\ theContent,\ cv::Scalar(0x31,\ 0x31,\ 0x31),\ CVUI\_FILLED);}
+\DoxyCodeLine{02115\ \ \ \ \ \ \ \ \ \ \ \ \ cv::addWeighted(aOverlay,\ aAlpha,\ theBlock.where,\ 1.0\ -\/\ aAlpha,\ 0.0,\ theBlock.where);}
+\DoxyCodeLine{02116\ }
+\DoxyCodeLine{02117\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02118\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{02119\ \ \ \ \ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ theContent,\ cv::Scalar(0x31,\ 0x31,\ 0x31),\ CVUI\_FILLED);}
+\DoxyCodeLine{02120\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02121\ \ \ \ \ \}}
+\DoxyCodeLine{02122\ }
+\DoxyCodeLine{02123\ \ \ \ \ \textcolor{keywordtype}{void}\ rect(cvui\_block\_t\&\ theBlock,\ cv::Rect\&\ thePos,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor)\ \{}
+\DoxyCodeLine{02124\ \ \ \ \ \ \ \ \ cv::Scalar\ aBorder\ =\ internal::hexToScalar(theBorderColor);}
+\DoxyCodeLine{02125\ \ \ \ \ \ \ \ \ cv::Scalar\ aFilling\ =\ internal::hexToScalar(theFillingColor);}
+\DoxyCodeLine{02126\ }
+\DoxyCodeLine{02127\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ aHasFilling\ =\ aFilling[3]\ !=\ 0xff;}
+\DoxyCodeLine{02128\ }
+\DoxyCodeLine{02129\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aHasFilling)\ \{}
+\DoxyCodeLine{02130\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (aFilling[3]\ ==\ 0x00)\ \{}
+\DoxyCodeLine{02131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ full\ opacity}}
+\DoxyCodeLine{02132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ thePos,\ aFilling,\ CVUI\_FILLED,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{02133\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02134\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{02135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cv::Rect\ aClippedRect\ =\ thePos\ \&\ cv::Rect(cv::Point(0,\ 0),\ theBlock.where.size());}
+\DoxyCodeLine{02136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ aAlpha\ =\ 1.00\ -\/\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(aFilling[3])\ /\ 255;}
+\DoxyCodeLine{02137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cv::Mat\ aOverlay(aClippedRect.size(),\ theBlock.where.type(),\ aFilling);}
+\DoxyCodeLine{02138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cv::addWeighted(aOverlay,\ aAlpha,\ theBlock.where(aClippedRect),\ 1.00\ -\/\ aAlpha,\ 0.0,\ theBlock.where(aClippedRect));}
+\DoxyCodeLine{02139\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02140\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02141\ }
+\DoxyCodeLine{02142\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Render\ the\ border}}
+\DoxyCodeLine{02143\ \ \ \ \ \ \ \ \ cv::rectangle(theBlock.where,\ thePos,\ aBorder,\ 1,\ CVUI\_ANTIALISED);}
+\DoxyCodeLine{02144\ \ \ \ \ \}}
+\DoxyCodeLine{02145\ }
+\DoxyCodeLine{02146\ \ \ \ \ \textcolor{keywordtype}{void}\ sparkline(cvui\_block\_t\&\ theBlock,\ std::vector<double>\&\ theValues,\ cv::Rect\ \&theRect,\ \textcolor{keywordtype}{double}\ theMin,\ \textcolor{keywordtype}{double}\ theMax,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02147\ \ \ \ \ \ \ \ \ std::vector<double>::size\_type\ aSize\ =\ theValues.size(),\ i;}
+\DoxyCodeLine{02148\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ aGap,\ aPosX,\ aScale\ =\ 0,\ x,\ y;}
+\DoxyCodeLine{02149\ }
+\DoxyCodeLine{02150\ \ \ \ \ \ \ \ \ aScale\ =\ theMax\ -\/\ theMin;}
+\DoxyCodeLine{02151\ \ \ \ \ \ \ \ \ aGap\ =\ (double)theRect.width\ /\ aSize;}
+\DoxyCodeLine{02152\ \ \ \ \ \ \ \ \ aPosX\ =\ theRect.x;}
+\DoxyCodeLine{02153\ }
+\DoxyCodeLine{02154\ \ \ \ \ \ \ \ \ for\ (i\ =\ 0;\ i\ <=\ aSize\ -\/\ 2;\ i++)\ \{}
+\DoxyCodeLine{02155\ \ \ \ \ \ \ \ \ \ \ \ \ x\ =\ aPosX;}
+\DoxyCodeLine{02156\ \ \ \ \ \ \ \ \ \ \ \ \ y\ =\ (theValues[i]\ -\/\ theMin)\ /\ aScale\ *\ -\/(theRect.height\ -\/\ 5)\ +\ theRect.y\ +\ theRect.height\ -\/\ 5;}
+\DoxyCodeLine{02157\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Point\ aPoint1((\textcolor{keywordtype}{int})x,\ (\textcolor{keywordtype}{int})y);}
+\DoxyCodeLine{02158\ }
+\DoxyCodeLine{02159\ \ \ \ \ \ \ \ \ \ \ \ \ x\ =\ aPosX\ +\ aGap;}
+\DoxyCodeLine{02160\ \ \ \ \ \ \ \ \ \ \ \ \ y\ =\ (theValues[i\ +\ 1]\ -\/\ theMin)\ /\ aScale\ *\ -\/(theRect.height\ -\/\ 5)\ +\ theRect.y\ +\ theRect.height\ -\/\ 5;}
+\DoxyCodeLine{02161\ \ \ \ \ \ \ \ \ \ \ \ \ cv::Point\ aPoint2((\textcolor{keywordtype}{int})x,\ (\textcolor{keywordtype}{int})y);}
+\DoxyCodeLine{02162\ }
+\DoxyCodeLine{02163\ \ \ \ \ \ \ \ \ \ \ \ \ cv::line(theBlock.where,\ aPoint1,\ aPoint2,\ internal::hexToScalar(theColor));}
+\DoxyCodeLine{02164\ \ \ \ \ \ \ \ \ \ \ \ \ aPosX\ +=\ aGap;}
+\DoxyCodeLine{02165\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02166\ \ \ \ \ \}}
+\DoxyCodeLine{02167\ \}\ \textcolor{comment}{//\ namespace\ render}}
+\DoxyCodeLine{02168\ }
+\DoxyCodeLine{02169\ \textcolor{keywordtype}{void}\ init(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theDelayWaitKey,\ \textcolor{keywordtype}{bool}\ theCreateNamedWindow)\ \{}
+\DoxyCodeLine{02170\ \ \ \ \ internal::init(theWindowName,\ theDelayWaitKey);}
+\DoxyCodeLine{02171\ \ \ \ \ watch(theWindowName,\ theCreateNamedWindow);}
+\DoxyCodeLine{02172\ \}}
+\DoxyCodeLine{02173\ }
+\DoxyCodeLine{02174\ \textcolor{keywordtype}{void}\ init(\textcolor{keyword}{const}\ cv::String\ theWindowNames[],\ \textcolor{keywordtype}{size\_t}\ theHowManyWindows,\ \textcolor{keywordtype}{int}\ theDelayWaitKey,\ \textcolor{keywordtype}{bool}\ theCreateNamedWindows)\ \{}
+\DoxyCodeLine{02175\ \ \ \ \ internal::init(theWindowNames[0],\ theDelayWaitKey);}
+\DoxyCodeLine{02176\ }
+\DoxyCodeLine{02177\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ theHowManyWindows;\ i++)\ \{}
+\DoxyCodeLine{02178\ \ \ \ \ \ \ \ \ watch(theWindowNames[i],\ theCreateNamedWindows);}
+\DoxyCodeLine{02179\ \ \ \ \ \}}
+\DoxyCodeLine{02180\ \}}
+\DoxyCodeLine{02181\ }
+\DoxyCodeLine{02182\ \textcolor{keywordtype}{void}\ watch(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{bool}\ theCreateNamedWindow)\ \{}
+\DoxyCodeLine{02183\ \ \ \ \ cvui\_context\_t\ aContex;}
+\DoxyCodeLine{02184\ }
+\DoxyCodeLine{02185\ \ \ \ \ \textcolor{keywordflow}{if}\ (theCreateNamedWindow)\ \{}
+\DoxyCodeLine{02186\ \ \ \ \ \ \ \ \ cv::namedWindow(theWindowName);}
+\DoxyCodeLine{02187\ \ \ \ \ \}}
+\DoxyCodeLine{02188\ }
+\DoxyCodeLine{02189\ \ \ \ \ aContex.windowName\ =\ theWindowName;}
+\DoxyCodeLine{02190\ \ \ \ \ aContex.mouse.position.x\ =\ 0;}
+\DoxyCodeLine{02191\ \ \ \ \ aContex.mouse.position.y\ =\ 0;}
+\DoxyCodeLine{02192\ \ \ \ \ }
+\DoxyCodeLine{02193\ \ \ \ \ internal::resetMouseButton(aContex.mouse.anyButton);}
+\DoxyCodeLine{02194\ \ \ \ \ internal::resetMouseButton(aContex.mouse.buttons[RIGHT\_BUTTON]);}
+\DoxyCodeLine{02195\ \ \ \ \ internal::resetMouseButton(aContex.mouse.buttons[MIDDLE\_BUTTON]);}
+\DoxyCodeLine{02196\ \ \ \ \ internal::resetMouseButton(aContex.mouse.buttons[LEFT\_BUTTON]);}
+\DoxyCodeLine{02197\ }
+\DoxyCodeLine{02198\ \ \ \ \ internal::gContexts[theWindowName]\ =\ aContex;}
+\DoxyCodeLine{02199\ \ \ \ \ cv::setMouseCallback(theWindowName,\ handleMouse,\ \&internal::gContexts[theWindowName]);}
+\DoxyCodeLine{02200\ \}}
+\DoxyCodeLine{02201\ }
+\DoxyCodeLine{02202\ \textcolor{keywordtype}{void}\ context(\textcolor{keyword}{const}\ cv::String\&\ theWindowName)\ \{}
+\DoxyCodeLine{02203\ \ \ \ \ internal::gCurrentContext\ =\ theWindowName;}
+\DoxyCodeLine{02204\ \}}
+\DoxyCodeLine{02205\ }
+\DoxyCodeLine{02206\ \textcolor{keywordtype}{void}\ imshow(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ cv::InputArray\ theFrame)\ \{}
+\DoxyCodeLine{02207\ \ \ \ \ cvui::update(theWindowName);}
+\DoxyCodeLine{02208\ \ \ \ \ cv::imshow(theWindowName,\ theFrame);}
+\DoxyCodeLine{02209\ \}}
+\DoxyCodeLine{02210\ }
+\DoxyCodeLine{02211\ \textcolor{keywordtype}{int}\ lastKeyPressed()\ \{}
+\DoxyCodeLine{02212\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::gLastKeyPressed;}
+\DoxyCodeLine{02213\ \}}
+\DoxyCodeLine{02214\ }
+\DoxyCodeLine{02215\ cv::Point\ mouse(\textcolor{keyword}{const}\ cv::String\&\ theWindowName)\ \{}
+\DoxyCodeLine{02216\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::getContext(theWindowName).mouse.position;}
+\DoxyCodeLine{02217\ \}}
+\DoxyCodeLine{02218\ }
+\DoxyCodeLine{02219\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keywordtype}{int}\ theQuery)\ \{}
+\DoxyCodeLine{02220\ \ \ \ \ \textcolor{keywordflow}{return}\ mouse(\textcolor{stringliteral}{"{}"{}},\ theQuery);}
+\DoxyCodeLine{02221\ \}}
+\DoxyCodeLine{02222\ }
+\DoxyCodeLine{02223\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theQuery)\ \{}
+\DoxyCodeLine{02224\ \ \ \ \ cvui\_mouse\_btn\_t\&\ aButton\ =\ internal::getContext(theWindowName).mouse.anyButton;}
+\DoxyCodeLine{02225\ \ \ \ \ \textcolor{keywordtype}{bool}\ aRet\ =\ internal::isMouseButton(aButton,\ theQuery);}
+\DoxyCodeLine{02226\ }
+\DoxyCodeLine{02227\ \ \ \ \ \textcolor{keywordflow}{return}\ aRet;}
+\DoxyCodeLine{02228\ \}}
+\DoxyCodeLine{02229\ }
+\DoxyCodeLine{02230\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keywordtype}{int}\ theButton,\ \textcolor{keywordtype}{int}\ theQuery)\ \{}
+\DoxyCodeLine{02231\ \ \ \ \ \textcolor{keywordflow}{return}\ mouse(\textcolor{stringliteral}{"{}"{}},\ theButton,\ theQuery);}
+\DoxyCodeLine{02232\ \}}
+\DoxyCodeLine{02233\ }
+\DoxyCodeLine{02234\ \textcolor{keywordtype}{bool}\ mouse(\textcolor{keyword}{const}\ cv::String\&\ theWindowName,\ \textcolor{keywordtype}{int}\ theButton,\ \textcolor{keywordtype}{int}\ theQuery)\ \{}
+\DoxyCodeLine{02235\ \ \ \ \ \textcolor{keywordflow}{if}\ (theButton\ !=\ RIGHT\_BUTTON\ \&\&\ theButton\ !=\ MIDDLE\_BUTTON\ \&\&\ theButton\ !=\ LEFT\_BUTTON)\ \{}
+\DoxyCodeLine{02236\ \ \ \ \ \ \ \ \ internal::error(6,\ \textcolor{stringliteral}{"{}Invalid\ mouse\ button.\ Are\ you\ using\ one\ of\ the\ available:\ cvui::\{RIGHT,MIDDLE,LEFT\}\_BUTTON\ ?"{}});}
+\DoxyCodeLine{02237\ \ \ \ \ \}}
+\DoxyCodeLine{02238\ }
+\DoxyCodeLine{02239\ \ \ \ \ cvui\_mouse\_btn\_t\&\ aButton\ =\ internal::getContext(theWindowName).mouse.buttons[theButton];}
+\DoxyCodeLine{02240\ \ \ \ \ \textcolor{keywordtype}{bool}\ aRet\ =\ internal::isMouseButton(aButton,\ theQuery);}
+\DoxyCodeLine{02241\ }
+\DoxyCodeLine{02242\ \ \ \ \ \textcolor{keywordflow}{return}\ aRet;}
+\DoxyCodeLine{02243\ \}}
+\DoxyCodeLine{02244\ }
+\DoxyCodeLine{02245\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel)\ \{}
+\DoxyCodeLine{02246\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02247\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::button(internal::gScreen,\ theX,\ theY,\ theLabel);}
+\DoxyCodeLine{02248\ \}}
+\DoxyCodeLine{02249\ }
+\DoxyCodeLine{02250\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel)\ \{}
+\DoxyCodeLine{02251\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02252\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::button(internal::gScreen,\ theX,\ theY,\ theWidth,\ theHeight,\ theLabel,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02253\ \}}
+\DoxyCodeLine{02254\ }
+\DoxyCodeLine{02255\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theIdle,\ cv::Mat\&\ theOver,\ cv::Mat\&\ theDown)\ \{}
+\DoxyCodeLine{02256\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02257\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::button(internal::gScreen,\ theX,\ theY,\ theIdle,\ theOver,\ theDown,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02258\ \}}
+\DoxyCodeLine{02259\ }
+\DoxyCodeLine{02260\ \textcolor{keywordtype}{void}\ image(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ cv::Mat\&\ theImage)\ \{}
+\DoxyCodeLine{02261\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02262\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::image(internal::gScreen,\ theX,\ theY,\ theImage);}
+\DoxyCodeLine{02263\ \}}
+\DoxyCodeLine{02264\ }
+\DoxyCodeLine{02265\ \textcolor{keywordtype}{bool}\ checkbox(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ *theState,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02266\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02267\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::checkbox(internal::gScreen,\ theX,\ theY,\ theLabel,\ theState,\ theColor);}
+\DoxyCodeLine{02268\ \}}
+\DoxyCodeLine{02269\ }
+\DoxyCodeLine{02270\ \textcolor{keywordtype}{void}\ text(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ cv::String\&\ theText,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02271\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02272\ \ \ \ \ internal::text(internal::gScreen,\ theX,\ theY,\ theText,\ theFontScale,\ theColor,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02273\ \}}
+\DoxyCodeLine{02274\ }
+\DoxyCodeLine{02275\ \textcolor{keywordtype}{void}\ printf(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...)\ \{}
+\DoxyCodeLine{02276\ \ \ \ \ va\_list\ aArgs;}
+\DoxyCodeLine{02277\ }
+\DoxyCodeLine{02278\ \ \ \ \ va\_start(aArgs,\ theFmt);}
+\DoxyCodeLine{02279\ \ \ \ \ vsprintf\_s(internal::gBuffer,\ theFmt,\ aArgs);}
+\DoxyCodeLine{02280\ \ \ \ \ va\_end(aArgs);}
+\DoxyCodeLine{02281\ }
+\DoxyCodeLine{02282\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02283\ \ \ \ \ internal::text(internal::gScreen,\ theX,\ theY,\ internal::gBuffer,\ theFontScale,\ theColor,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02284\ \}}
+\DoxyCodeLine{02285\ }
+\DoxyCodeLine{02286\ \textcolor{keywordtype}{void}\ printf(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...)\ \{}
+\DoxyCodeLine{02287\ \ \ \ \ va\_list\ aArgs;}
+\DoxyCodeLine{02288\ }
+\DoxyCodeLine{02289\ \ \ \ \ va\_start(aArgs,\ theFmt);}
+\DoxyCodeLine{02290\ \ \ \ \ vsprintf\_s(internal::gBuffer,\ theFmt,\ aArgs);}
+\DoxyCodeLine{02291\ \ \ \ \ va\_end(aArgs);}
+\DoxyCodeLine{02292\ }
+\DoxyCodeLine{02293\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02294\ \ \ \ \ internal::text(internal::gScreen,\ theX,\ theY,\ internal::gBuffer,\ 0.4,\ 0xCECECE,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02295\ \}}
+\DoxyCodeLine{02296\ }
+\DoxyCodeLine{02297\ \textcolor{keywordtype}{int}\ counter(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ *theValue,\ \textcolor{keywordtype}{int}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat)\ \{}
+\DoxyCodeLine{02298\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02299\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::counter(internal::gScreen,\ theX,\ theY,\ theValue,\ theStep,\ theFormat);}
+\DoxyCodeLine{02300\ \}}
+\DoxyCodeLine{02301\ }
+\DoxyCodeLine{02302\ \textcolor{keywordtype}{double}\ counter(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keywordtype}{double}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat)\ \{}
+\DoxyCodeLine{02303\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02304\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::counter(internal::gScreen,\ theX,\ theY,\ theValue,\ theStep,\ theFormat);}
+\DoxyCodeLine{02305\ \}}
+\DoxyCodeLine{02306\ }
+\DoxyCodeLine{02307\ \textcolor{keywordtype}{void}\ window(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle)\ \{}
+\DoxyCodeLine{02308\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02309\ \ \ \ \ internal::window(internal::gScreen,\ theX,\ theY,\ theWidth,\ theHeight,\ theTitle);}
+\DoxyCodeLine{02310\ \}}
+\DoxyCodeLine{02311\ }
+\DoxyCodeLine{02312\ \textcolor{keywordtype}{void}\ rect(cv::Mat\&\ theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor)\ \{}
+\DoxyCodeLine{02313\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02314\ \ \ \ \ internal::rect(internal::gScreen,\ theX,\ theY,\ theWidth,\ theHeight,\ theBorderColor,\ theFillingColor);}
+\DoxyCodeLine{02315\ \}}
+\DoxyCodeLine{02316\ }
+\DoxyCodeLine{02317\ \textcolor{keywordtype}{void}\ sparkline(cv::Mat\&\ theWhere,\ std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02318\ \ \ \ \ internal::gScreen.where\ =\ theWhere;}
+\DoxyCodeLine{02319\ \ \ \ \ internal::sparkline(internal::gScreen,\ theValues,\ theX,\ theY,\ theWidth,\ theHeight,\ theColor);}
+\DoxyCodeLine{02320\ \}}
+\DoxyCodeLine{02321\ }
+\DoxyCodeLine{02322\ \textcolor{keywordtype}{int}\ iarea(\textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight)\ \{}
+\DoxyCodeLine{02323\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::iarea(theX,\ theY,\ theWidth,\ theHeight);}
+\DoxyCodeLine{02324\ \}}
+\DoxyCodeLine{02325\ }
+\DoxyCodeLine{02326\ \textcolor{keywordtype}{void}\ beginRow(cv::Mat\ \&theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{int}\ thePadding)\ \{}
+\DoxyCodeLine{02327\ \ \ \ \ internal::begin(ROW,\ theWhere,\ theX,\ theY,\ theWidth,\ theHeight,\ thePadding);}
+\DoxyCodeLine{02328\ \}}
+\DoxyCodeLine{02329\ }
+\DoxyCodeLine{02330\ \textcolor{keywordtype}{void}\ endRow()\ \{}
+\DoxyCodeLine{02331\ \ \ \ \ internal::end(ROW);}
+\DoxyCodeLine{02332\ \}}
+\DoxyCodeLine{02333\ }
+\DoxyCodeLine{02334\ \textcolor{keywordtype}{void}\ beginColumn(cv::Mat\ \&theWhere,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{int}\ thePadding)\ \{}
+\DoxyCodeLine{02335\ \ \ \ \ internal::begin(COLUMN,\ theWhere,\ theX,\ theY,\ theWidth,\ theHeight,\ thePadding);}
+\DoxyCodeLine{02336\ \}}
+\DoxyCodeLine{02337\ }
+\DoxyCodeLine{02338\ \textcolor{keywordtype}{void}\ endColumn()\ \{}
+\DoxyCodeLine{02339\ \ \ \ \ internal::end(COLUMN);}
+\DoxyCodeLine{02340\ \}}
+\DoxyCodeLine{02341\ }
+\DoxyCodeLine{02342\ \textcolor{keywordtype}{void}\ beginRow(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{int}\ thePadding)\ \{}
+\DoxyCodeLine{02343\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02344\ \ \ \ \ internal::begin(ROW,\ aBlock.where,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theWidth,\ theHeight,\ thePadding);}
+\DoxyCodeLine{02345\ \}}
+\DoxyCodeLine{02346\ }
+\DoxyCodeLine{02347\ \textcolor{keywordtype}{void}\ beginColumn(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{int}\ thePadding)\ \{}
+\DoxyCodeLine{02348\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02349\ \ \ \ \ internal::begin(COLUMN,\ aBlock.where,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theWidth,\ theHeight,\ thePadding);}
+\DoxyCodeLine{02350\ \}}
+\DoxyCodeLine{02351\ }
+\DoxyCodeLine{02352\ \textcolor{keywordtype}{void}\ space(\textcolor{keywordtype}{int}\ theValue)\ \{}
+\DoxyCodeLine{02353\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02354\ \ \ \ \ cv::Size\ aSize(theValue,\ theValue);}
+\DoxyCodeLine{02355\ }
+\DoxyCodeLine{02356\ \ \ \ \ internal::updateLayoutFlow(aBlock,\ aSize);}
+\DoxyCodeLine{02357\ \}}
+\DoxyCodeLine{02358\ }
+\DoxyCodeLine{02359\ \textcolor{keywordtype}{bool}\ button(\textcolor{keyword}{const}\ cv::String\&\ theLabel)\ \{}
+\DoxyCodeLine{02360\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02361\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::button(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theLabel);}
+\DoxyCodeLine{02362\ \}}
+\DoxyCodeLine{02363\ }
+\DoxyCodeLine{02364\ \textcolor{keywordtype}{bool}\ button(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theLabel)\ \{}
+\DoxyCodeLine{02365\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02366\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::button(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theWidth,\ theHeight,\ theLabel,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02367\ \}}
+\DoxyCodeLine{02368\ }
+\DoxyCodeLine{02369\ \textcolor{keywordtype}{bool}\ button(cv::Mat\&\ theIdle,\ cv::Mat\&\ theOver,\ cv::Mat\&\ theDown)\ \{}
+\DoxyCodeLine{02370\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02371\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::button(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theIdle,\ theOver,\ theDown,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02372\ \}}
+\DoxyCodeLine{02373\ }
+\DoxyCodeLine{02374\ \textcolor{keywordtype}{void}\ image(cv::Mat\&\ theImage)\ \{}
+\DoxyCodeLine{02375\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02376\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::image(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theImage);}
+\DoxyCodeLine{02377\ \}}
+\DoxyCodeLine{02378\ }
+\DoxyCodeLine{02379\ \textcolor{keywordtype}{bool}\ checkbox(\textcolor{keyword}{const}\ cv::String\&\ theLabel,\ \textcolor{keywordtype}{bool}\ *theState,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02380\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02381\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::checkbox(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theLabel,\ theState,\ theColor);}
+\DoxyCodeLine{02382\ \}}
+\DoxyCodeLine{02383\ }
+\DoxyCodeLine{02384\ \textcolor{keywordtype}{void}\ text(\textcolor{keyword}{const}\ cv::String\&\ theText,\ \textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02385\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02386\ \ \ \ \ internal::text(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theText,\ theFontScale,\ theColor,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02387\ \}}
+\DoxyCodeLine{02388\ }
+\DoxyCodeLine{02389\ \textcolor{keywordtype}{void}\ printf(\textcolor{keywordtype}{double}\ theFontScale,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...)\ \{}
+\DoxyCodeLine{02390\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02391\ \ \ \ \ va\_list\ aArgs;}
+\DoxyCodeLine{02392\ }
+\DoxyCodeLine{02393\ \ \ \ \ va\_start(aArgs,\ theFmt);}
+\DoxyCodeLine{02394\ \ \ \ \ vsprintf\_s(internal::gBuffer,\ theFmt,\ aArgs);}
+\DoxyCodeLine{02395\ \ \ \ \ va\_end(aArgs);}
+\DoxyCodeLine{02396\ }
+\DoxyCodeLine{02397\ \ \ \ \ internal::text(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ internal::gBuffer,\ theFontScale,\ theColor,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02398\ \}}
+\DoxyCodeLine{02399\ }
+\DoxyCodeLine{02400\ \textcolor{keywordtype}{void}\ printf(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFmt,\ ...)\ \{}
+\DoxyCodeLine{02401\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02402\ \ \ \ \ va\_list\ aArgs;}
+\DoxyCodeLine{02403\ }
+\DoxyCodeLine{02404\ \ \ \ \ va\_start(aArgs,\ theFmt);}
+\DoxyCodeLine{02405\ \ \ \ \ vsprintf\_s(internal::gBuffer,\ theFmt,\ aArgs);}
+\DoxyCodeLine{02406\ \ \ \ \ va\_end(aArgs);}
+\DoxyCodeLine{02407\ }
+\DoxyCodeLine{02408\ \ \ \ \ internal::text(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ internal::gBuffer,\ 0.4,\ 0xCECECE,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{02409\ \}}
+\DoxyCodeLine{02410\ }
+\DoxyCodeLine{02411\ \textcolor{keywordtype}{int}\ counter(\textcolor{keywordtype}{int}\ *theValue,\ \textcolor{keywordtype}{int}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat)\ \{}
+\DoxyCodeLine{02412\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02413\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::counter(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theValue,\ theStep,\ theFormat);}
+\DoxyCodeLine{02414\ \}}
+\DoxyCodeLine{02415\ }
+\DoxyCodeLine{02416\ \textcolor{keywordtype}{double}\ counter(\textcolor{keywordtype}{double}\ *theValue,\ \textcolor{keywordtype}{double}\ theStep,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *theFormat)\ \{}
+\DoxyCodeLine{02417\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02418\ \ \ \ \ \textcolor{keywordflow}{return}\ internal::counter(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theValue,\ theStep,\ theFormat);}
+\DoxyCodeLine{02419\ \}}
+\DoxyCodeLine{02420\ }
+\DoxyCodeLine{02421\ \textcolor{keywordtype}{void}\ window(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keyword}{const}\ cv::String\&\ theTitle)\ \{}
+\DoxyCodeLine{02422\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02423\ \ \ \ \ internal::window(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theWidth,\ theHeight,\ theTitle);}
+\DoxyCodeLine{02424\ \}}
+\DoxyCodeLine{02425\ }
+\DoxyCodeLine{02426\ \textcolor{keywordtype}{void}\ rect(\textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theBorderColor,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theFillingColor)\ \{}
+\DoxyCodeLine{02427\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02428\ \ \ \ \ internal::rect(aBlock,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theWidth,\ theHeight,\ theBorderColor,\ theFillingColor);}
+\DoxyCodeLine{02429\ \}}
+\DoxyCodeLine{02430\ }
+\DoxyCodeLine{02431\ \textcolor{keywordtype}{void}\ sparkline(std::vector<double>\&\ theValues,\ \textcolor{keywordtype}{int}\ theWidth,\ \textcolor{keywordtype}{int}\ theHeight,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ theColor)\ \{}
+\DoxyCodeLine{02432\ \ \ \ \ cvui\_block\_t\&\ aBlock\ =\ internal::topBlock();}
+\DoxyCodeLine{02433\ \ \ \ \ internal::sparkline(aBlock,\ theValues,\ aBlock.anchor.x,\ aBlock.anchor.y,\ theWidth,\ theHeight,\ theColor);}
+\DoxyCodeLine{02434\ \}}
+\DoxyCodeLine{02435\ }
+\DoxyCodeLine{02436\ \textcolor{keywordtype}{void}\ update(\textcolor{keyword}{const}\ cv::String\&\ theWindowName)\ \{}
+\DoxyCodeLine{02437\ \ \ \ \ cvui\_context\_t\&\ aContext\ =\ internal::getContext(theWindowName);}
+\DoxyCodeLine{02438\ }
+\DoxyCodeLine{02439\ \ \ \ \ aContext.mouse.anyButton.justReleased\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02440\ \ \ \ \ aContext.mouse.anyButton.justPressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02441\ }
+\DoxyCodeLine{02442\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ cvui::LEFT\_BUTTON;\ i\ <=\ cvui::RIGHT\_BUTTON;\ i++)\ \{}
+\DoxyCodeLine{02443\ \ \ \ \ \ \ \ \ aContext.mouse.buttons[i].justReleased\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02444\ \ \ \ \ \ \ \ \ aContext.mouse.buttons[i].justPressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02445\ \ \ \ \ \}}
+\DoxyCodeLine{02446\ \ \ \ \ }
+\DoxyCodeLine{02447\ \ \ \ \ internal::resetRenderingBuffer(internal::gScreen);}
+\DoxyCodeLine{02448\ }
+\DoxyCodeLine{02449\ \ \ \ \ \textcolor{comment}{//\ If\ we\ were\ told\ to\ keep\ track\ of\ the\ keyboard\ shortcuts,\ we}}
+\DoxyCodeLine{02450\ \ \ \ \ \textcolor{comment}{//\ proceed\ to\ handle\ opencv\ event\ queue.}}
+\DoxyCodeLine{02451\ \ \ \ \ \textcolor{keywordflow}{if}\ (internal::gDelayWaitKey\ >\ 0)\ \{}
+\DoxyCodeLine{02452\ \ \ \ \ \ \ \ \ internal::gLastKeyPressed\ =\ cv::waitKey(internal::gDelayWaitKey);}
+\DoxyCodeLine{02453\ \ \ \ \ \}}
+\DoxyCodeLine{02454\ }
+\DoxyCodeLine{02455\ \ \ \ \ \textcolor{keywordflow}{if}\ (!internal::blockStackEmpty())\ \{}
+\DoxyCodeLine{02456\ \ \ \ \ \ \ \ \ internal::error(2,\ \textcolor{stringliteral}{"{}Calling\ update()\ before\ finishing\ all\ begin*()/end*()\ calls.\ Did\ you\ forget\ to\ call\ a\ begin*()\ or\ an\ end*()?\ Check\ if\ every\ begin*()\ has\ an\ appropriate\ end*()\ call\ before\ you\ call\ update()."{}});}
+\DoxyCodeLine{02457\ \ \ \ \ \}}
+\DoxyCodeLine{02458\ \}}
+\DoxyCodeLine{02459\ }
+\DoxyCodeLine{02460\ \textcolor{keywordtype}{void}\ handleMouse(\textcolor{keywordtype}{int}\ theEvent,\ \textcolor{keywordtype}{int}\ theX,\ \textcolor{keywordtype}{int}\ theY,\ \textcolor{keywordtype}{int}\ theFlags,\ \textcolor{keywordtype}{void}*\ theData)\ \{}
+\DoxyCodeLine{02461\ \ \ \ \ \textcolor{keywordtype}{int}\ aButtons[3]\ =\ \{\ cvui::LEFT\_BUTTON,\ cvui::MIDDLE\_BUTTON,\ cvui::RIGHT\_BUTTON\ \};}
+\DoxyCodeLine{02462\ \ \ \ \ \textcolor{keywordtype}{int}\ aEventsDown[3]\ =\ \{\ cv::EVENT\_LBUTTONDOWN,\ cv::EVENT\_MBUTTONDOWN,\ cv::EVENT\_RBUTTONDOWN\ \};}
+\DoxyCodeLine{02463\ \ \ \ \ \textcolor{keywordtype}{int}\ aEventsUp[3]\ =\ \{\ cv::EVENT\_LBUTTONUP,\ cv::EVENT\_MBUTTONUP,\ cv::EVENT\_RBUTTONUP\ \};}
+\DoxyCodeLine{02464\ \ \ \ \ }
+\DoxyCodeLine{02465\ \ \ \ \ cvui\_context\_t\ *aContext\ =\ (cvui\_context\_t\ *)theData;}
+\DoxyCodeLine{02466\ \ \ \ \ }
+\DoxyCodeLine{02467\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ i++)\ \{}
+\DoxyCodeLine{02468\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ aBtn\ =\ aButtons[i];}
+\DoxyCodeLine{02469\ }
+\DoxyCodeLine{02470\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (theEvent\ ==\ aEventsDown[i])\ \{}
+\DoxyCodeLine{02471\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.anyButton.justPressed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{02472\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.anyButton.pressed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{02473\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.buttons[aBtn].justPressed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{02474\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.buttons[aBtn].pressed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{02475\ }
+\DoxyCodeLine{02476\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (theEvent\ ==\ aEventsUp[i])\ \{}
+\DoxyCodeLine{02477\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.anyButton.justReleased\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{02478\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.anyButton.pressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02479\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.buttons[aBtn].justReleased\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{02480\ \ \ \ \ \ \ \ \ \ \ \ \ aContext-\/>mouse.buttons[aBtn].pressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{02481\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{02482\ \ \ \ \ \}}
+\DoxyCodeLine{02483\ \ \ \ \ }
+\DoxyCodeLine{02484\ \ \ \ \ aContext-\/>mouse.position.x\ =\ theX;}
+\DoxyCodeLine{02485\ \ \ \ \ aContext-\/>mouse.position.y\ =\ theY;}
+\DoxyCodeLine{02486\ \}}
+\DoxyCodeLine{02487\ }
+\DoxyCodeLine{02488\ \}\ \textcolor{comment}{//\ namespace\ cvui}}
+\DoxyCodeLine{02489\ }
+\DoxyCodeLine{02490\ \textcolor{comment}{//\ Final\ adjustments\ that\ are\ platform-\/dependent}}
+\DoxyCodeLine{02491\ \textcolor{preprocessor}{\#ifdef\ \_MSC\_VER}}
+\DoxyCodeLine{02492\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ we\ salved\ the\ definitions\ of\ min\ and\ max,\ which\ could\ have}}
+\DoxyCodeLine{02493\ \ \ \ \ \textcolor{comment}{//\ been\ defined\ by\ windows.h.\ If\ that\ is\ the\ case,\ we\ have\ undef'd}}
+\DoxyCodeLine{02494\ \ \ \ \ \textcolor{comment}{//\ them\ at\ the\ begining\ of\ this\ file,\ so\ we\ need\ to\ restore\ the\ existing}}
+\DoxyCodeLine{02495\ \ \ \ \ \textcolor{comment}{//\ macros\ now.\ We\ want\ to\ do\ good,\ not\ make\ world\ burn.\ You're\ welcome.}}
+\DoxyCodeLine{02496\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ \_\_cvui\_min}}
+\DoxyCodeLine{02497\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ min\ \_\_cvui\_min}}
+\DoxyCodeLine{02498\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{02499\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ \_\_cvui\_max}}
+\DoxyCodeLine{02500\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ max\ \_\_cvui\_max}}
+\DoxyCodeLine{02501\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{02502\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{02503\ }
+\DoxyCodeLine{02504\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ CVUI\_IMPLEMENTATION}}
+
+\end{DoxyCode}

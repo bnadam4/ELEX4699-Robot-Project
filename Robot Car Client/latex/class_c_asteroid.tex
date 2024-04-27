@@ -1,0 +1,104 @@
+\hypertarget{class_c_asteroid}{}\doxysection{CAsteroid Class Reference}
+\label{class_c_asteroid}\index{CAsteroid@{CAsteroid}}
+
+
+Implements the asteroid object for Asteroids.  
+
+
+
+
+{\ttfamily \#include $<$CAsteroid.\+h$>$}
+
+Inheritance diagram for CAsteroid\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_c_asteroid}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_c_asteroid_a12e176ee14187759aab8c3c22b31803b}{CAsteroid}} ()
+\begin{DoxyCompactList}\small\item\em Initializes the attributes of the asteroid. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_c_game_object}{CGame\+Object}}}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_c_game_object_a5fecb17a62f57564f27a5e1120721e12}{move}} ()
+\begin{DoxyCompactList}\small\item\em Moves the game object. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_c_game_object_a095ec5e8e92a7442f444a1d3b7e200da}{collide}} (\mbox{\hyperlink{class_c_game_object}{CGame\+Object}} \&obj)
+\begin{DoxyCompactList}\small\item\em Finds if two objects have collided. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_c_game_object_a08d995ced2104224a85466636830c75b}{collide\+\_\+wall}} (cv\+::\+Size board)
+\begin{DoxyCompactList}\small\item\em Checks if the game object has collided with a wall. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_ab66892d3d3db14c4b7e427f341c949dd}{hit}} ()
+\begin{DoxyCompactList}\small\item\em Action to take if an object is hit. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_c_game_object_a9c794264bb1c37231f137b0df3a8ccbc}{get\+\_\+lives}} ()
+\begin{DoxyCompactList}\small\item\em Initializes the attributes of the missile. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_a1fbab5676bc0491dd10266bce54ad577}{set\+\_\+lives}} (int lives)
+\begin{DoxyCompactList}\small\item\em Sets the objects lives. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_a00d81865208e461b027e02c681f1b5c5}{set\+\_\+pos}} (cv\+::\+Point2f pos)
+\begin{DoxyCompactList}\small\item\em Sets the object position. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_af236745194b32ebd4e917a89edc776b6}{set\+\_\+color}} (cv\+::\+Scalar \+\_\+color)
+\begin{DoxyCompactList}\small\item\em Sets the object\textquotesingle{}s color. \end{DoxyCompactList}\item 
+cv\+::\+Point2f \mbox{\hyperlink{class_c_game_object_adba771699db5820fcbc948ec80b7003b}{get\+\_\+pos}} ()
+\begin{DoxyCompactList}\small\item\em Gets the position of the object. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_c_game_object_a52acc619db9e652d6e0d0b6fd3205a0a}{draw}} (cv\+::\+Mat \&im)
+\begin{DoxyCompactList}\small\item\em Draws game object to the board. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+\doxysubsubsection*{Protected Attributes inherited from \mbox{\hyperlink{class_c_game_object}{CGame\+Object}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_game_object_a7b4e09f1daa6a49233a0f5c02c65de2c}\label{class_c_game_object_a7b4e09f1daa6a49233a0f5c02c65de2c}} 
+cv\+::\+Point2f {\bfseries \+\_\+position}
+\begin{DoxyCompactList}\small\item\em Object position in game. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_afc80c955ac58f71f2fce1b341bd88e7f}\label{class_c_game_object_afc80c955ac58f71f2fce1b341bd88e7f}} 
+cv\+::\+Point2f {\bfseries \+\_\+velocity}
+\begin{DoxyCompactList}\small\item\em Object velocity in game. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_a75ee23a373ce4a33863de12f42c8ab55}\label{class_c_game_object_a75ee23a373ce4a33863de12f42c8ab55}} 
+int {\bfseries \+\_\+radius}
+\begin{DoxyCompactList}\small\item\em Object\textquotesingle{}s radius. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_acb7176fe06c83819114f7e8a8490c755}\label{class_c_game_object_acb7176fe06c83819114f7e8a8490c755}} 
+int {\bfseries \+\_\+lives}
+\begin{DoxyCompactList}\small\item\em Number of lives the object has. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_ad83c2538070058536269877eb2847826}\label{class_c_game_object_ad83c2538070058536269877eb2847826}} 
+cv\+::\+Scalar {\bfseries color}
+\begin{DoxyCompactList}\small\item\em Color of the object. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_c_game_object_a08b877b799103e7d0083e4157fb2473f}\label{class_c_game_object_a08b877b799103e7d0083e4157fb2473f}} 
+double {\bfseries last\+\_\+move\+\_\+time}
+\begin{DoxyCompactList}\small\item\em Last time the move function was called. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements the asteroid object for Asteroids. 
+
+Sets the unique attributes of the asteroid object in asteroids. These objects will spawn randomly and act as hazards to the player. They can be destroyed by missiles
+
+\begin{DoxyAuthor}{Author}
+Bryce Adam 
+\end{DoxyAuthor}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_c_asteroid_a12e176ee14187759aab8c3c22b31803b}\label{class_c_asteroid_a12e176ee14187759aab8c3c22b31803b}} 
+\index{CAsteroid@{CAsteroid}!CAsteroid@{CAsteroid}}
+\index{CAsteroid@{CAsteroid}!CAsteroid@{CAsteroid}}
+\doxysubsubsection{\texorpdfstring{CAsteroid()}{CAsteroid()}}
+{\footnotesize\ttfamily CAsteroid\+::\+CAsteroid (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Initializes the attributes of the asteroid. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em no} & parameters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+nothing to return 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+CAsteroid.\+h\item 
+CAsteroid.\+cpp\end{DoxyCompactItemize}

@@ -22,14 +22,20 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-fexceptions" />
+			<Add option="`pkg-config --cflags opencv4` -std=c++11" />
 		</Compiler>
+		<Linker>
+			<Add option="`pkg-config --libs opencv4` -std=c++11 -lpigpio -lrt -lpthread" />
+		</Linker>
 		<Unit filename="Car.cpp" />
 		<Unit filename="Car.h" />
 		<Unit filename="Communication.cpp" />
 		<Unit filename="Communication.h" />
+		<Unit filename="Guidance.cpp" />
+		<Unit filename="Guidance.h" />
 		<Unit filename="Motor.cpp" />
 		<Unit filename="Motor.h" />
+		<Unit filename="cvui.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="server.cpp" />
 		<Unit filename="server.h" />

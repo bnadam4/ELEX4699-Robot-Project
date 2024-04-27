@@ -2,13 +2,15 @@
 #define CAR_H_INCLUDED
 
 #include "Communication.h"
-//#include "Motor.h"
+#include "Motor.h"
+#include "Guidance.h"
 
 class CCar
 {
 private:
     CCommunication _com;
-    //CMotors _motors;
+    CMotors _motors;
+    CGuidance _guide;
 public:
     CCar();
     ~CCar();
