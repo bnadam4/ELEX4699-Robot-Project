@@ -25,7 +25,6 @@
 
 // Classes needed for Lab 9
 #include "Lab9Client.h"
-
 #define CANVAS_NAME "Display Image"
 
 ////////////////////////////////////////////////////////////////
@@ -302,39 +301,15 @@ void do_clientserver()
 
 
 ////////////////////////////////////////////////////////////////
-// Lab 9
-////////////////////////////////////////////////////////////////
-void lab9()
-{
-    CLab9Client client;
-    std::string cmd = "not q";
-    std::string server_reply = "invalid\n";
-
-    // std::thread t(&client.image_thread, &client);
-    // t.detach();
-
-    std::cout << "\n***********************************";
-    std::cout << "\n* Lab 9 Client Command line";
-    std::cout << "\n***********************************";
-    std::cout << "\n Enter q to quit";
-
-    do
-    {
-        std::cout << "\nCMD> ";
-        std::cin >> cmd;
-
-        client.send_command(cmd);
-    } 
-    while (cmd != "q");
-}
-
-////////////////////////////////////////////////////////////////
 // Pi Robot
 ////////////////////////////////////////////////////////////////
 void PiRobot()
 {
-    CLab9Client client;
-    std::string cmd = "not q";
+    // Make the command client and image client
+    CLab9Client cmd_client(4618);
+    CLab9Client img_client(4699);
+
+    std::string cmd = "not x";
     std::string server_reply = "invalid\n";
 
     // std::thread t(&client.image_thread, &client);
@@ -343,9 +318,45 @@ void PiRobot()
     std::cout << "\n***********************************";
     std::cout << "\n* Pi Robot Client Command line";
     std::cout << "\n***********************************";
-    std::cout << "\n Press q to quit" << std::endl;
+    std::cout << "\n Press x to quit" << std::endl;
 
     char ch;
+    cv::Mat _im;
+    bool _quit = false;
+
+    std::thread t([&]()
+    {
+        do
+        {
+            if (img_client.rx_im(_im) == true)
+            {
+                img_client._timeout_start = cv::getTickCount();
+                if (_im.empty() == false)
+                {
+                    std::cout << "\nClient Rx: Image received";
+                }
+            }
+            else
+            {
+                if ((cv::getTickCount() - img_client._timeout_start) / cv::getTickFrequency() > 1000)
+                {
+                    std::cout << "No response from image server" << std::endl;
+                    // No response, disconnect and reconnect
+                    img_client._timeout_start = cv::getTickCount();
+                    img_client.close_socket();
+                    img_client.connect_socket("192.168.137.124", 4699);
+                }
+            }
+
+            if (_im.empty() == false)
+            {
+                // Add code to stop image transmission later
+                cv::imshow("Robot Cam", _im);
+            }
+            cv::waitKey(50);
+            } while (!_quit);
+        });
+    t.detach();
 
     do
     {
@@ -361,8 +372,10 @@ void PiRobot()
             std::cout << "Command entered: " << ch << std::endl;
 
         cmd = ch;
-        client.send_command(cmd);
-    } while (ch != 'q');
+        cmd_client.send_command(cmd);
+    } while (ch != 'x');
+
+    _quit = true;
 }
 
 void print_menu()
@@ -370,7 +383,6 @@ void print_menu()
 	std::cout << "\n***********************************";
 	std::cout << "\n* ELEX4618 Template Project";
 	std::cout << "\n***********************************";
-  std::cout << "\n(9) Lab 9 - Sockets";
   std::cout << "\n(14) Pi Robot Client";
   std::cout << "\n(10) Test serial COM communication";
 	std::cout << "\n(11) Show image manipulation";
@@ -390,7 +402,6 @@ int main(int argc, char* argv[])
 		std::cin >> cmd;
 		switch (cmd)
 		{
-        case 9: lab9(); break;
     case 10: test_com(); break;
 		case 11: do_image(); break;
 		case 12: do_video(); break;

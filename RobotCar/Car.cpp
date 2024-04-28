@@ -14,8 +14,10 @@ void CCar::drive()
 {
     std::string key;
     bool right_turn = 0, left_turn = 0, for_mov = 0, back_mov = 0, stop_mov = 1;
+    int turn_camera = 1000;
+    std::string prev_key;
 
-    while(_com.get_key() != "q")
+    while(_com.get_key() != "x")
     {
         _com.communicate();
         _guide.update();
@@ -24,7 +26,6 @@ void CCar::drive()
         if (_com.get_receiving())
         {
             if (key == "w") {
-            std::cout << "Foward command recieved" << std::endl;
             right_turn = 0;
             left_turn = 0;
             for_mov = 1;
@@ -32,7 +33,6 @@ void CCar::drive()
             stop_mov = 0;
             }
             else if (key == "s") {
-            std::cout << "Backwards command recieved" << std::endl;
                 right_turn = 0;
                 left_turn = 0;
                 for_mov = 0;
@@ -40,7 +40,6 @@ void CCar::drive()
                 stop_mov = 0;
             }
             else if (key == "d") {
-            std::cout << "Right command recieved" << std::endl;
                 right_turn = 1;
                 left_turn = 0;
                 for_mov = 0;
@@ -48,23 +47,65 @@ void CCar::drive()
                 stop_mov = 0;
             }
             else if (key == "a") {
-            std::cout << "Left command recieved" << std::endl;
                 right_turn = 0;
                 left_turn = 1;
                 for_mov = 0;
                 back_mov = 0;
                 stop_mov = 0;
             }
-            else if (key == "f") {
-            std::cout << "Stop command recieved" << std::endl;
+            //Stop moving if r is press
+            else if (key == "r") {
                 right_turn = 0;
                 left_turn = 0;
                 for_mov = 0;
                 back_mov = 0;
                 stop_mov = 1;
-            } else
+            }
+            //Rotate cannon/camera left incrementally every time q is pressed
+            else if(key == "q"){
+                turn_camera += 100;
+                if (turn_camera >= 2000)
+                    turn_camera = 2000;
+                _motors.turn_cannon(turn_camera);
+            }
+            //Rotate cannon/camera right incrementally every time q is pressed
+            else if(key == "e"){
+                turn_camera -= 100;
+                if (turn_camera <= 600)
+                    turn_camera = 600;
+                _motors.turn_cannon(turn_camera);
+
+            }
+        }
+
+        //fire the pellets if f is pressed
+        if(key == "f"){
+            std::cout << "Fire! : " << key << std::endl;
+            _motors.fire();
+        }
+
+        // Debugging outputs
+        if (key != prev_key)
+        {
+            if(key == "w")
+                std::cout << "Foward command recieved" << std::endl;
+            else if(key == "s")
+                std::cout << "Backwards command recieved" << std::endl;
+            else if(key == "a")
+                std::cout << "Left command recieved" << std::endl;
+            else if(key == "d")
+                std::cout << "Right command recieved" << std::endl;
+            else if(key == "r")
+                std::cout << "Stop command recieved" << std::endl;
+            else if(key == "q")
+                std::cout << "Rotate left" << std::endl;
+            else if(key == "e")
+                std::cout << "Rotate right" << std::endl;
+            else
                 std::cout << "Got something else: " << key << std::endl;
         }
+
+        prev_key = key;
 
         if(for_mov)
             {

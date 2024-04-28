@@ -12,7 +12,7 @@
 
 #define BUFF_SIZE 65535
 
-CLab9Client::CLab9Client()
+CLab9Client::CLab9Client(int _port)
 {
     _socket = 0;
 
@@ -24,8 +24,8 @@ CLab9Client::CLab9Client()
     }
 
     server_ip = "192.168.137.124";
-    server_port = 4618;
-    timeout_start = cv::getTickCount();
+    server_port = _port;
+    _timeout_start = cv::getTickCount();
     connect_socket(server_ip, server_port);
     // thread_exit = false;
 #endif
@@ -160,7 +160,7 @@ void CLab9Client::send_command(std::string cmd)
         cv::Mat im;
         if (rx_im(im) == true)
         {
-            timeout_start = cv::getTickCount();
+            _timeout_start = cv::getTickCount();
             if (im.empty() == false)
             {
                 std::cout << "\nClient Rx: Image received";
@@ -170,10 +170,10 @@ void CLab9Client::send_command(std::string cmd)
         }
         else
         {
-            if ((cv::getTickCount() - timeout_start) / cv::getTickFrequency() > 1000)
+            if ((cv::getTickCount() - _timeout_start) / cv::getTickFrequency() > 1000)
             {
                 // No response, disconnect and reconnect
-                timeout_start = cv::getTickCount();
+                _timeout_start = cv::getTickCount();
                 close_socket();
                 connect_socket(server_ip, server_port);
             }
@@ -183,21 +183,53 @@ void CLab9Client::send_command(std::string cmd)
     {
         if (rx_str(str) == true)
         {
-            timeout_start = cv::getTickCount();
+            _timeout_start = cv::getTickCount();
             std::cout << "\nServer reply: " << str;
         }
         else
         {
-            if ((cv::getTickCount() - timeout_start) / cv::getTickFrequency() > 1000)
+            if ((cv::getTickCount() - _timeout_start) / cv::getTickFrequency() > 1000)
             {
                 // No response, disconnect and reconnect
-                timeout_start = cv::getTickCount();
+                _timeout_start = cv::getTickCount();
                 close_socket();
                 connect_socket(server_ip, server_port);
             }
         }
     }
 }
+
+cv::Mat CLab9Client::getVideo()
+{
+    cv::Mat _im;
+    while (1)
+    {
+        tx_str("G 1");
+        Sleep(40); // try taking sleep out 
+        if (rx_im(_im) == true)
+        {
+            _timeout_start = cv::getTickCount();
+            //if (_im.empty() == false)
+            //{
+            //	//std::cout << "\nClient Rx: Image received";
+            //	cv::imshow("rx", _im);
+            //	cv::waitKey(10);
+            //}
+        }
+        else
+        {
+            if ((cv::getTickCount() - _timeout_start) / cv::getTickFrequency() > 1000)
+            {
+                // No response, disconnect and reconnect
+                _timeout_start = cv::getTickCount();
+                close_socket();
+                connect_socket("192.168.137.124", 4699);
+            }
+        }
+        return _im;
+    }
+
+};
 
 /*
 void CLab9Client::image_thread(CLab9Client* client)

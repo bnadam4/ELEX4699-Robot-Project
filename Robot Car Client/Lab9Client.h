@@ -38,14 +38,13 @@ private:
 
 	std::string _addr;
 	SOCKET _socket;
-	float timeout_start;
 	std::string server_ip;
 	int server_port;
 
 	bool setblocking(SOCKET fd, bool blocking);
 
 public:
-	CLab9Client();
+	CLab9Client(int _port);
 	~CLab9Client();
 
 	void connect_socket(std::string addr, int port);
@@ -55,6 +54,10 @@ public:
 	void tx_str(std::string str);
 	bool rx_str(std::string& str);
 	bool rx_im(cv::Mat& im);
+
+	// video getting functionality
+	cv::Mat getVideo();
+	float _timeout_start;
 
 	// static void image_thread(CLab9Client* client);
 	// bool thread_exit;

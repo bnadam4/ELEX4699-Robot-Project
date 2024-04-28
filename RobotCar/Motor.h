@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <cmath>
+#include <unistd.h>
 
 //#define CVUI_IMPLEMENTATION
 //#include "cvui.h"
@@ -21,6 +22,19 @@
 #define LM_FORWARD 6
 #define LM_REVERSE 5
 #define LM_EN 26
+
+#define XAXIS 128
+#define YAXIS 144
+#define PB1 13
+#define LED 12
+#define SERVO_1 4
+#define _CANVAS "exit"
+
+#define SERVO_CANNON 4
+#define SERVO_TURN_CANNON 23
+
+#define FIRE_PULL 900
+#define FIRE_READY 1700
 
 class CMotors
 {
@@ -39,6 +53,10 @@ public:
 
 	void left(int duty);
 	void right(int duty);
+
+	void turn_cannon(int angle);
+
+	void fire();
 };
 
 #endif // MOTOR_INCLUDED
