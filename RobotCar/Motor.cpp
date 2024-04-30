@@ -112,32 +112,32 @@ void CMotors::turn_cannon(int angle)
 
 }
 
-void CMotors::fire()
+bool CMotors::fire(double start_time)
 {
     //delays for firing and resetting the firing mechanism, may be modified but these seem like optimal values when I was testing
-    double start_time = cv::getTickCount();
     double delay = 0.25;
     double delay2 = 0.5;
 
-    gpioServo(SERVO_CANNON, FIRE_PULL );
+    double elapsed_time = (cv::getTickCount() - start_time) / cv::getTickFrequency();
 
-    while (true)
-   {
-      double elapsed_time = (cv::getTickCount() - start_time) / cv::getTickFrequency();
-
-      if (elapsed_time >= delay)
-      {
-         gpioServo(SERVO_CANNON, FIRE_READY );
-
-      }
-
-      if(elapsed_time >= delay2)
-      {
-        break;
-      }
-
-
-   }
+    if (elapsed_time < delay)
+    {
+        gpioServo(SERVO_CANNON, FIRE_PULL );
+        return true;
+    }
+    else if (elapsed_time >= delay && elapsed_time < delay2)
+    {
+        gpioServo(SERVO_CANNON, FIRE_READY );
+        return true;
+    }
+    else if(elapsed_time >= delay2)
+    {
+        return false;
+    }
+    else{
+        // Error case
+        return false;
+    }
 
 
 }

@@ -15,6 +15,10 @@ public:
     CCar();
     ~CCar();
 
+    // Timing variables for firing
+    bool firing;
+    double start_time;
+
     void drive();
 };
 

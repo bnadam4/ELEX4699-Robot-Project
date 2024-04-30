@@ -34,13 +34,17 @@
 #define SERVO_TURN_CANNON 23
 
 #define FIRE_PULL 900
-#define FIRE_READY 1700
+#define FIRE_READY 1800
 
 class CMotors
 {
 public:
 	CMotors();
 	~CMotors();
+
+	// Timing variables for firing
+	double start_time;
+	bool firing;
 
 	void set_pwm_left(int val);
 	void set_pwm_right(int val);
@@ -56,7 +60,7 @@ public:
 
 	void turn_cannon(int angle);
 
-	void fire();
+	bool fire(double start_time);
 };
 
 #endif // MOTOR_INCLUDED

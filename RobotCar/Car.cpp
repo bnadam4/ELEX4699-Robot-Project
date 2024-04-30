@@ -2,7 +2,8 @@
 
 CCar::CCar()
 {
-    //nothing for now
+    firing = false;
+    start_time = 0.0;
 }
 
 CCar::~CCar()
@@ -80,8 +81,14 @@ void CCar::drive()
 
         //fire the pellets if f is pressed
         if(key == "f"){
-            std::cout << "Fire! : " << key << std::endl;
-            _motors.fire();
+            //std::cout << "Entered firing block" << std::endl;
+            if(firing == false)
+            {
+                std::cout << std::endl << "Fire! : " << key << std::endl;
+                start_time = cv::getTickCount();
+                firing = true;
+            }
+            firing = _motors.fire(start_time);
         }
 
         // Debugging outputs

@@ -49,7 +49,7 @@ public:
 
 	void connect_socket(std::string addr, int port);
 	void close_socket();
-	void send_command(std::string cmd);
+	cv::Mat send_command(std::string cmd);
 
 	void tx_str(std::string str);
 	bool rx_str(std::string& str);

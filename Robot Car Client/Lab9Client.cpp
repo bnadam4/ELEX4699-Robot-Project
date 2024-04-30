@@ -148,7 +148,7 @@ bool CLab9Client::rx_im(cv::Mat& im)
     return false;
 }
 
-void CLab9Client::send_command(std::string cmd)
+cv::Mat CLab9Client::send_command(std::string cmd)
 {
     std::string str;
 
@@ -161,12 +161,14 @@ void CLab9Client::send_command(std::string cmd)
         if (rx_im(im) == true)
         {
             _timeout_start = cv::getTickCount();
+            /*
             if (im.empty() == false)
             {
                 std::cout << "\nClient Rx: Image received";
                 cv::imshow("rx", im);
                 cv::waitKey(10);
             }
+            */
         }
         else
         {
@@ -178,9 +180,13 @@ void CLab9Client::send_command(std::string cmd)
                 connect_socket(server_ip, server_port);
             }
         }
+
+        return im;
     }
     else
     {
+        cv::Mat im;
+
         if (rx_str(str) == true)
         {
             _timeout_start = cv::getTickCount();
@@ -196,6 +202,7 @@ void CLab9Client::send_command(std::string cmd)
                 connect_socket(server_ip, server_port);
             }
         }
+        return im;
     }
 }
 
@@ -204,23 +211,25 @@ cv::Mat CLab9Client::getVideo()
     cv::Mat _im;
     while (1)
     {
-        tx_str("G 1");
-        Sleep(40); // try taking sleep out 
+        send_command("im");
         if (rx_im(_im) == true)
         {
+            std::cout << "Got into getVideo if" << std::endl;
             _timeout_start = cv::getTickCount();
             //if (_im.empty() == false)
             //{
-            //	//std::cout << "\nClient Rx: Image received";
+            //	std::cout << "\nClient Rx: Image received";
             //	cv::imshow("rx", _im);
             //	cv::waitKey(10);
             //}
         }
         else
         {
+            std::cout << "Got into getVideo else" << std::endl;
             if ((cv::getTickCount() - _timeout_start) / cv::getTickFrequency() > 1000)
             {
                 // No response, disconnect and reconnect
+                std::cout << "No response, disconnect and reconnect" << std::endl;
                 _timeout_start = cv::getTickCount();
                 close_socket();
                 connect_socket("192.168.137.124", 4699);

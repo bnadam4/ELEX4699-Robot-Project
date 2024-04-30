@@ -312,9 +312,6 @@ void PiRobot()
     std::string cmd = "not x";
     std::string server_reply = "invalid\n";
 
-    // std::thread t(&client.image_thread, &client);
-    // t.detach();
-
     std::cout << "\n***********************************";
     std::cout << "\n* Pi Robot Client Command line";
     std::cout << "\n***********************************";
@@ -328,32 +325,16 @@ void PiRobot()
     {
         do
         {
-            if (img_client.rx_im(_im) == true)
-            {
-                img_client._timeout_start = cv::getTickCount();
-                if (_im.empty() == false)
-                {
-                    std::cout << "\nClient Rx: Image received";
-                }
-            }
-            else
-            {
-                if ((cv::getTickCount() - img_client._timeout_start) / cv::getTickFrequency() > 1000)
-                {
-                    std::cout << "No response from image server" << std::endl;
-                    // No response, disconnect and reconnect
-                    img_client._timeout_start = cv::getTickCount();
-                    img_client.close_socket();
-                    img_client.connect_socket("192.168.137.124", 4699);
-                }
-            }
+            _im = img_client.send_command("im");
 
             if (_im.empty() == false)
             {
                 // Add code to stop image transmission later
                 cv::imshow("Robot Cam", _im);
             }
+
             cv::waitKey(50);
+ 
             } while (!_quit);
         });
     t.detach();
@@ -372,7 +353,10 @@ void PiRobot()
             std::cout << "Command entered: " << ch << std::endl;
 
         cmd = ch;
-        cmd_client.send_command(cmd);
+        if (cmd != "n")
+        {
+            cmd_client.send_command(cmd);
+        }
     } while (ch != 'x');
 
     _quit = true;

@@ -78,8 +78,6 @@ void CCommunication::communicate()
     cv::waitKey(1);
 
     img_server.get_cmd(img_cmds);
-    // std::cout << "Image commands " << img_cmds << std::endl;
-    // Send image to the image client
     if(_cap.isOpened() == true)
     {
         if(_display_im.empty() == false)
