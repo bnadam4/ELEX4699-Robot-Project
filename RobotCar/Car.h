@@ -4,6 +4,8 @@
 #include "Communication.h"
 #include "Motor.h"
 #include "Guidance.h"
+#include <string>
+
 
 class CCar
 {
@@ -18,8 +20,16 @@ public:
     // Timing variables for firing
     bool firing;
     double start_time;
+    bool automatic;
+    bool stop;
+
+    double rotate_time;
+
+    int right_pwm;
+    int left_pwm;
 
     void drive();
+    void set_auto(bool automatic);
 };
 
 #endif // CAR_H_INCLUDED

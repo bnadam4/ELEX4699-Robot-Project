@@ -57,10 +57,10 @@ void CMotors::stop()
       gpioWrite(LM_REVERSE, 0);
 }
 
-void CMotors::forwards(int duty)
+void CMotors::forwards(int right_duty, int left_duty)
 {
-      set_pwm_left(duty);
-      set_pwm_right(duty);
+      set_pwm_left(left_duty);
+      set_pwm_right(right_duty);
 
       gpioWrite(RM_FORWARD, 1);
       gpioWrite(RM_REVERSE, 0);
@@ -69,10 +69,10 @@ void CMotors::forwards(int duty)
       gpioWrite(LM_REVERSE, 0);
 }
 
-void CMotors::backward(int duty)
+void CMotors::backward(int right_duty, int left_duty)
 {
-    set_pwm_left(duty);
-    set_pwm_right(duty);
+    set_pwm_left(left_duty);
+    set_pwm_right(right_duty);
 
     gpioWrite(RM_FORWARD, 0);
     gpioWrite(RM_REVERSE, 1);
@@ -81,10 +81,10 @@ void CMotors::backward(int duty)
     gpioWrite(LM_REVERSE, 1);
 }
 
-void CMotors::left(int duty)
+void CMotors::left(int right_duty, int left_duty)
 {
-      set_pwm_left(duty);
-      set_pwm_right(duty);
+      set_pwm_left(left_duty);
+      set_pwm_right(right_duty);
 
       gpioWrite(RM_FORWARD, 1);
       gpioWrite(RM_REVERSE, 0);
@@ -93,15 +93,27 @@ void CMotors::left(int duty)
       gpioWrite(LM_REVERSE, 0);
 }
 
-void CMotors::right(int duty)
+void CMotors::right(int right_duty, int left_duty)
 {
-    set_pwm_left(duty);
-    set_pwm_right(duty);
+    set_pwm_left(left_duty);
+    set_pwm_right(right_duty);
 
     gpioWrite(RM_FORWARD, 0);
     gpioWrite(RM_REVERSE, 0);
 
     gpioWrite(LM_FORWARD, 1);
+    gpioWrite(LM_REVERSE, 0);
+}
+
+void CMotors::left_reverse(int right_duty, int left_duty)
+{
+    set_pwm_left(left_duty);
+    set_pwm_right(right_duty);
+
+    gpioWrite(RM_FORWARD, 0);
+    gpioWrite(RM_REVERSE, 1);
+
+    gpioWrite(LM_FORWARD, 0);
     gpioWrite(LM_REVERSE, 0);
 }
 
@@ -138,6 +150,35 @@ bool CMotors::fire(double start_time)
         // Error case
         return false;
     }
+}
 
+void CMotors::delay_fire()
+{
+    //delays for firing and resetting the firing mechanism, may be modified but these seem like optimal values when I was testing
+    double start_time = cv::getTickCount();
+    double delay = 0.25;
+    double delay2 = 0.5;
+
+    gpioServo(SERVO_CANNON, FIRE_PULL );
+
+    while (true)
+   {
+      double elapsed_time = (cv::getTickCount() - start_time) / cv::getTickFrequency();
+
+      if (elapsed_time >= delay)
+      {
+         gpioServo(SERVO_CANNON, FIRE_READY );
+
+      }
+
+      if(elapsed_time >= delay2)
+      {
+        break;
+      }
+   }
+}
+
+void CMotors::degree_turn(int degrees)
+{
 
 }

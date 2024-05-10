@@ -3,6 +3,7 @@
 
 #include "server.h"
 #include <thread>
+#include <cmath>
 
 class CCommunication
 {
@@ -20,12 +21,19 @@ private:
 
     // Additions from Alex code
     CServer img_server;
-    std::string gstreamer_pipeline(int capture_width, int capture_height, int framerate, int display_width, int display_height);
+    // std::string gstreamer_pipeline(int capture_width, int capture_height, int framerate, int display_width, int display_height);
     void img_server_thread(CServer* server);
 public:
     std::string get_key() { return key; }
     bool get_receiving() { return receiving; }
+    int off_center(cv::Point minPoint, cv::Point maxPoint, cv::Mat image);
     void communicate();
+
+    bool automatic;
+
+    std::vector<int> ids;
+    std::vector<int> pixels_off;
+    std::vector<double> dist;
     CCommunication();
     ~CCommunication();
 };
